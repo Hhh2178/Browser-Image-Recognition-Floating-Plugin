@@ -6,6 +6,7 @@ import { AnalysisControls } from "./AnalysisControls";
 import { ResultPanel } from "./ResultPanel";
 import { SourceSummary } from "./SourceSummary";
 import { WorkbenchHeader } from "./WorkbenchHeader";
+import { WorkbenchSettings } from "./WorkbenchSettings";
 import type {
   AnalyzeSelection,
   WorkbenchSource
@@ -18,15 +19,15 @@ export function Workbench(props: {
   modelName?: string;
   onAnalyze: (selection: AnalyzeSelection) => Promise<{ content: string; durationMs: number } | undefined> | void;
   onPickImage?: () => void;
-  onOpenSettings: () => void;
   onOpenHistory: () => void;
-  onManagePrompts?: () => void;
+  onConfigurationChanged?: () => Promise<void> | void;
   onClose: () => void;
   initialPosition?: { x: number; y: number };
   savePosition?: (position: { x: number; y: number }) => void;
   theme?: "system" | "light" | "dark";
 }) {
   const prompts = props.prompts ?? BUILTIN_PROMPTS;
+  const [view, setView] = useState<"analysis" | "models" | "prompts">("analysis");
   const [minimized, setMinimized] = useState(false);
   const [promptId, setPromptId] = useState(prompts[0]?.id ?? "");
   const [format, setFormat] = useState<OutputFormat>("zh");
@@ -39,7 +40,13 @@ export function Workbench(props: {
   const [position, setPosition] = useState(
     props.initialPosition ? clampFloatingPosition(props.initialPosition) : null
   );
-  const dragRef = useRef<{ offsetX: number; offsetY: number } | null>(null);
+  const shellRef = useRef<HTMLElement | null>(null);
+  const dragRef = useRef<{
+    pointerX: number;
+    pointerY: number;
+    start: { x: number; y: number };
+    next: { x: number; y: number };
+  } | null>(null);
   const prompt = useMemo(
     () => prompts.find((item) => item.id === promptId) ?? prompts[0],
     [promptId, prompts]
@@ -47,17 +54,26 @@ export function Workbench(props: {
 
   useEffect(() => {
     const move = (event: PointerEvent) => {
-      if (!dragRef.current) {
+      const drag = dragRef.current;
+      const shell = shellRef.current;
+      if (!drag || !shell) {
         return;
       }
-      setPosition(clampFloatingPosition({
-        x: event.clientX - dragRef.current.offsetX,
-        y: event.clientY - dragRef.current.offsetY
-      }));
+      const next = clampFloatingPosition({
+        x: drag.start.x + event.clientX - drag.pointerX,
+        y: drag.start.y + event.clientY - drag.pointerY
+      }, shell.offsetWidth);
+      drag.next = next;
+      shell.style.transform = `translate3d(${next.x - drag.start.x}px, ${next.y - drag.start.y}px, 0)`;
     };
     const end = () => {
-      if (dragRef.current && position) {
-        props.savePosition?.(position);
+      const drag = dragRef.current;
+      const shell = shellRef.current;
+      if (drag && shell) {
+        shell.style.transform = "";
+        shell.classList.remove("dragging");
+        setPosition(drag.next);
+        props.savePosition?.(drag.next);
       }
       dragRef.current = null;
     };
@@ -65,7 +81,9 @@ export function Workbench(props: {
     window.addEventListener("pointerup", end);
     window.addEventListener("pointercancel", end);
     const handleResize = () => {
-      setPosition((current) => current ? clampFloatingPosition(current) : current);
+      setPosition((current) => current
+        ? clampFloatingPosition(current, shellRef.current?.offsetWidth)
+        : current);
     };
     window.addEventListener("resize", handleResize);
     return () => {
@@ -74,14 +92,23 @@ export function Workbench(props: {
       window.removeEventListener("pointercancel", end);
       window.removeEventListener("resize", handleResize);
     };
-  }, [position, props]);
+  }, [props.savePosition]);
 
   useEffect(() => {
     if (props.source) {
       setMinimized(false);
-      setPosition((current) => current ? clampFloatingPosition(current) : current);
+      setView("analysis");
+      setPosition((current) => current
+        ? clampFloatingPosition(current, shellRef.current?.offsetWidth)
+        : current);
     }
   }, [props.source]);
+
+  useEffect(() => {
+    setPosition((current) => current
+      ? clampFloatingPosition(current, shellRef.current?.offsetWidth)
+      : current);
+  }, [view]);
 
   const analyze = async () => {
     if (!props.source || !prompt) {
@@ -110,10 +137,12 @@ export function Workbench(props: {
 
   return (
     <aside
-      className={minimized ? "workbench-shell minimized" : "workbench-shell"}
+      ref={shellRef}
+      className={`${minimized ? "workbench-shell minimized" : "workbench-shell"}${view !== "analysis" ? " secondary-view" : ""}`}
       data-testid="workbench-shell"
       data-mode="float"
-      data-theme={props.theme ?? "system"}
+      data-theme="dark"
+      data-view={view}
       style={position ? {
         left: position.x,
         top: position.y,
@@ -123,8 +152,12 @@ export function Workbench(props: {
       aria-label="Hhh 视觉分析工作台"
     >
       <WorkbenchHeader
+        {...(view !== "analysis" ? {
+          secondaryTitle: view === "prompts" ? "提示词模板" : "设置",
+          onBack: () => setView("analysis")
+        } : {})}
         onOpenHistory={props.onOpenHistory}
-        onOpenSettings={props.onOpenSettings}
+        onOpenSettings={() => setView("models")}
         onMinimize={() => setMinimized((value) => !value)}
         onClose={props.onClose}
         onPointerDown={(event) => {
@@ -135,46 +168,65 @@ export function Workbench(props: {
           }
           const rect = event.currentTarget.parentElement?.getBoundingClientRect();
           if (rect) {
+            const start = clampFloatingPosition({ x: rect.left, y: rect.top }, rect.width);
             dragRef.current = {
-              offsetX: event.clientX - rect.left,
-              offsetY: event.clientY - rect.top
+              pointerX: event.clientX,
+              pointerY: event.clientY,
+              start,
+              next: start
             };
+            shellRef.current?.classList.add("dragging");
           }
         }}
       />
       {minimized ? null : (
         <div className="workbench-body">
-          <SourceSummary
-            source={props.source}
-            {...(props.onPickImage ? { onPickImage: props.onPickImage } : {})}
-          />
-          <AnalysisControls
-            prompts={prompts}
-            selectedPromptId={promptId}
-            outputFormat={format}
-            modelName={props.modelName ?? ""}
-            running={running}
-            disabled={!props.source}
-            onPromptChange={setPromptId}
-            onFormatChange={setFormat}
-            onManagePrompts={props.onManagePrompts ?? props.onOpenSettings}
-            onAnalyze={() => void analyze()}
-          />
-          <ResultPanel
-            result={results[format] ?? ""}
-            error={error}
-            running={running}
-            durationMs={durationMs}
-            onRetry={() => void analyze()}
-          />
+          {view === "analysis" ? (
+            <>
+              <SourceSummary
+                source={props.source}
+                {...(props.onPickImage ? { onPickImage: props.onPickImage } : {})}
+              />
+              <AnalysisControls
+                prompts={prompts}
+                selectedPromptId={promptId}
+                outputFormat={format}
+                modelName={props.modelName ?? ""}
+                running={running}
+                disabled={!props.source}
+                onPromptChange={setPromptId}
+                onFormatChange={setFormat}
+                onManagePrompts={() => setView("prompts")}
+                onAnalyze={() => void analyze()}
+              />
+              <ResultPanel
+                result={results[format] ?? ""}
+                error={error}
+                running={running}
+                durationMs={durationMs}
+                onRetry={() => void analyze()}
+              />
+            </>
+          ) : (
+            <WorkbenchSettings
+              key={view}
+              initialTab={view === "prompts" ? "prompts" : "models"}
+              {...(props.onConfigurationChanged
+                ? { onChanged: props.onConfigurationChanged }
+                : {})}
+            />
+          )}
         </div>
       )}
     </aside>
   );
 }
 
-function clampFloatingPosition(position: { x: number; y: number }) {
-  const panelWidth = Math.min(440, Math.max(0, window.innerWidth - 24));
+function clampFloatingPosition(
+  position: { x: number; y: number },
+  measuredWidth?: number
+) {
+  const panelWidth = measuredWidth || Math.min(480, Math.max(0, window.innerWidth - 24));
   const maxX = Math.max(8, window.innerWidth - panelWidth - 8);
   const maxY = Math.max(8, window.innerHeight - 120);
   return {

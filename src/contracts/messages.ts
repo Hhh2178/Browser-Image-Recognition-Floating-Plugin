@@ -36,8 +36,7 @@ export type RuntimeMessage =
   | { type: "history/add"; payload: HistoryRecord }
   | { type: "history/list" }
   | { type: "history/remove"; payload: { id: string } }
-  | { type: "history/clear" }
-  | { type: "settings/open" };
+  | { type: "history/clear" };
 
 export type AnalysisResponse =
   | { ok: true; content: string; durationMs: number }

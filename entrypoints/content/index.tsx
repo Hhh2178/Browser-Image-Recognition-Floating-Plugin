@@ -242,6 +242,15 @@ function ContentApp(props: {
     setHistoryOpen(false);
   };
 
+  const refreshConfiguration = async () => {
+    const [nextSettings, nextPrompts] = await Promise.all([
+      loadSettings(),
+      listPrompts()
+    ]);
+    setSettings(nextSettings);
+    setPrompts(nextPrompts);
+  };
+
   const openPageImage = (image: HTMLImageElement) => {
     const sourceUrl = image.currentSrc || image.src;
     setSource({
@@ -354,9 +363,8 @@ function ContentApp(props: {
         {...(position ? { initialPosition: position } : {})}
         onAnalyze={analyze}
         onPickImage={startImagePicker}
-        onOpenSettings={() => void chrome.runtime.sendMessage({ type: "settings/open" })}
         onOpenHistory={() => void openHistory()}
-        onManagePrompts={() => void chrome.runtime.openOptionsPage()}
+        onConfigurationChanged={refreshConfiguration}
         onClose={() => setVisible(false)}
         savePosition={(nextPosition) => {
           setPosition(nextPosition);

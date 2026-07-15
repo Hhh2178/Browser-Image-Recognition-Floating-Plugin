@@ -1,4 +1,5 @@
 import {
+  ArrowLeft,
   History,
   Minimize2,
   Settings,
@@ -6,6 +7,8 @@ import {
 } from "lucide-react";
 
 export function WorkbenchHeader(props: {
+  secondaryTitle?: string;
+  onBack?: () => void;
   onOpenHistory: () => void;
   onOpenSettings: () => void;
   onMinimize: () => void;
@@ -15,19 +18,27 @@ export function WorkbenchHeader(props: {
   return (
     <header className="workbench-header" onPointerDown={props.onPointerDown}>
       <div className="workbench-title">
-        <span className="brand-mark">H</span>
+        {props.onBack ? (
+          <button type="button" className="back-button" aria-label="返回分析" title="返回分析" onClick={props.onBack}>
+            <ArrowLeft size={17} />
+          </button>
+        ) : <span className="brand-mark">H</span>}
         <div>
-          <strong>视觉分析</strong>
+          <strong>{props.secondaryTitle ?? "视觉分析"}</strong>
           <span>Hhh Prompt Studio</span>
         </div>
       </div>
       <div className="icon-actions">
-        <button type="button" aria-label="分析历史" title="分析历史" onClick={props.onOpenHistory}>
-          <History size={17} />
-        </button>
-        <button type="button" aria-label="打开设置" title="打开设置" onClick={props.onOpenSettings}>
-          <Settings size={17} />
-        </button>
+        {!props.onBack ? (
+          <>
+            <button type="button" aria-label="分析历史" title="分析历史" onClick={props.onOpenHistory}>
+              <History size={17} />
+            </button>
+            <button type="button" aria-label="打开设置" title="打开设置" onClick={props.onOpenSettings}>
+              <Settings size={17} />
+            </button>
+          </>
+        ) : null}
         <button type="button" aria-label="最小化" title="最小化" onClick={props.onMinimize}>
           <Minimize2 size={17} />
         </button>

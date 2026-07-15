@@ -86,10 +86,6 @@ export default defineBackground(() => {
       void historyRepository.clear().then(() => sendResponse({ ok: true }));
       return true;
     }
-    if (message.type === "settings/open") {
-      void chrome.runtime.openOptionsPage();
-      return false;
-    }
     if (message.type === "workbench/open-from-hover" && sender.tab?.id) {
       void router.openImage({
         tabId: sender.tab.id,

@@ -1,50 +1,24 @@
 :host {
   all: initial;
-  --hhh-surface: #ffffff;
-  --hhh-surface-subtle: #f5f7fa;
-  --hhh-surface-muted: #e9edf2;
-  --hhh-text: #18202b;
-  --hhh-text-muted: #637083;
-  --hhh-border: #cbd3dd;
-  --hhh-border-strong: #a9b4c1;
-  --hhh-accent: #2563eb;
-  --hhh-accent-hover: #1d4ed8;
-  --hhh-success: #16803c;
-  --hhh-danger: #c62828;
-  --hhh-warning-bg: #fff7ed;
-  --hhh-radius-sm: 4px;
-  --hhh-radius-md: 7px;
+  --hhh-surface: rgb(18 23 31 / 82%);
+  --hhh-surface-subtle: rgb(25 31 41 / 76%);
+  --hhh-surface-muted: rgb(43 51 63 / 64%);
+  --hhh-text: #edf3f8;
+  --hhh-text-muted: #9ca9b8;
+  --hhh-border: rgb(255 255 255 / 10%);
+  --hhh-border-strong: rgb(255 255 255 / 18%);
+  --hhh-accent: #73d1ee;
+  --hhh-accent-hover: #93dff5;
+  --hhh-success: #65d58b;
+  --hhh-danger: #ff8f96;
+  --hhh-warning-bg: rgb(115 209 238 / 10%);
+  --hhh-radius-sm: 10px;
+  --hhh-radius-md: 18px;
   color: var(--hhh-text);
-  font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  color-scheme: dark;
+  font-family: "Segoe UI Variable", "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
   font-size: 14px;
   letter-spacing: 0;
-}
-
-:host([data-theme="dark"]) {
-  --hhh-surface: #171b21;
-  --hhh-surface-subtle: #20252d;
-  --hhh-surface-muted: #2a313b;
-  --hhh-text: #f1f4f7;
-  --hhh-text-muted: #aeb8c5;
-  --hhh-border: #46505d;
-  --hhh-border-strong: #657080;
-  --hhh-accent: #6ea8fe;
-  --hhh-accent-hover: #8bb9ff;
-  --hhh-success: #53c878;
-  --hhh-danger: #ff8585;
-  --hhh-warning-bg: #3a2a1f;
-}
-
-@media (prefers-color-scheme: dark) {
-  :host {
-    --hhh-surface: #171b21;
-    --hhh-surface-subtle: #20252d;
-    --hhh-surface-muted: #2a313b;
-    --hhh-text: #f1f4f7;
-    --hhh-text-muted: #aeb8c5;
-    --hhh-border: #46505d;
-    --hhh-border-strong: #657080;
-  }
 }
 
 *, *::before, *::after {

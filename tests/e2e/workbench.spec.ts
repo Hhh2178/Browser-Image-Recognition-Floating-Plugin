@@ -109,6 +109,32 @@ test("opens a linked thumbnail directly from its context-menu URL", async ({
   await expect(page.getByRole("button", { name: "开始分析" })).toBeEnabled();
 });
 
+test("opens settings and prompt management inside the floating window", async ({
+  page,
+  serviceWorker
+}) => {
+  await page.goto("http://127.0.0.1:43118/");
+  await injectAndShowWorkbench(page, serviceWorker);
+  const pageUrl = page.url();
+
+  await page.getByRole("button", { name: "打开设置" }).click();
+  const shell = page.getByTestId("workbench-shell");
+  await expect(shell.getByRole("heading", { name: "模型与接口" })).toBeVisible();
+  expect(page.url()).toBe(pageUrl);
+  await page.screenshot({
+    path: "output/playwright/workbench-inline-settings.png",
+    fullPage: false
+  });
+
+  await shell.getByRole("button", { name: "提示词" }).click();
+  await expect(shell.getByText("内置模板", { exact: true })).toBeVisible();
+  await expect(shell.getByText("通用图片反推", { exact: true }).first()).toBeVisible();
+  await page.screenshot({
+    path: "output/playwright/workbench-inline-prompts.png",
+    fullPage: false
+  });
+});
+
 test("opens the extension options page", async ({ page, extensionId }) => {
   await page.goto(`chrome-extension://${extensionId}/options.html`);
   await expect(page.getByRole("heading", { name: "模型与接口" })).toBeVisible();
