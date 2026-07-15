@@ -8,7 +8,7 @@ import {
 } from "./helpers";
 import { expect, test } from "./extension.fixture";
 
-test("analyzes an image, docks without losing the result, and records history", async ({
+test("analyzes an image in a floating window and records history", async ({
   page,
   serviceWorker
 }) => {
@@ -19,15 +19,24 @@ test("analyzes an image, docks without losing the result, and records history", 
   const shell = page.getByTestId("workbench-shell");
   await expect(shell.getByText("视觉分析", { exact: true })).toBeVisible();
   await expect(shell.getByText("视觉分析扩展测试页", { exact: true })).toBeVisible();
+  await expect(shell).toHaveCSS("position", "fixed");
+  const initialBox = await shell.boundingBox();
+  if (!initialBox) {
+    throw new Error("Floating workbench is not visible");
+  }
+  expect(initialBox.width).toBeGreaterThan(360);
+  expect(initialBox.x).toBeGreaterThanOrEqual(0);
+  expect(initialBox.y).toBeGreaterThanOrEqual(0);
+  expect(initialBox.x + initialBox.width).toBeLessThanOrEqual(1440);
+  expect(initialBox.y + initialBox.height).toBeLessThanOrEqual(900);
   await page.getByRole("button", { name: "开始分析" }).click();
   await expect(page.getByText("测试分析结果：主体居中，冷灰背景，柔和侧光。")).toBeVisible();
 
-  await page.getByRole("button", { name: "停靠到右侧" }).click();
-  await expect(shell).toHaveAttribute("data-mode", "dock");
+  await expect(page.getByRole("button", { name: "停靠到右侧" })).toHaveCount(0);
   await expect(page.getByText("测试分析结果：主体居中，冷灰背景，柔和侧光。")).toBeVisible();
   await fs.mkdir("output/playwright", { recursive: true });
   await page.screenshot({
-    path: "output/playwright/workbench-docked.png",
+    path: "output/playwright/workbench-floating.png",
     fullPage: false
   });
 

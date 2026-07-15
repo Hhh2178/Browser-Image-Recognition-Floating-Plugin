@@ -11,8 +11,7 @@ import { loadSettings } from "../src/features/settings/settings-repository";
 import { historyRepository } from "../src/features/history/history-repository";
 import {
   CONTEXT_MENU_DEFINITIONS,
-  IMAGE_MENU_ID,
-  PICK_MENU_ID
+  IMAGE_MENU_ID
 } from "../src/features/media/context-menu-definitions";
 
 const CONTENT_SCRIPT_FILE = "content-scripts/content.js";
@@ -28,20 +27,26 @@ export default defineBackground(() => {
     if (!tab?.id) {
       return;
     }
-    if (info.menuItemId === IMAGE_MENU_ID && info.srcUrl) {
+    if (info.menuItemId !== IMAGE_MENU_ID) {
+      return;
+    }
+    if (info.srcUrl) {
       void router.openImage({
         tabId: tab.id,
         sourceUrl: info.srcUrl,
         pageUrl: tab.url ?? "",
         pageTitle: tab.title ?? ""
       }).catch(console.warn);
+      return;
     }
-    if (info.menuItemId === PICK_MENU_ID) {
-      const message = info.linkUrl
-        ? { type: "workbench/open-linked-image" as const, payload: { linkUrl: info.linkUrl } }
-        : { type: "workbench/pick-image" as const };
-      void ensureAndSend(tab.id, message).catch(console.warn);
+    if (info.linkUrl) {
+      void ensureAndSend(tab.id, {
+        type: "workbench/open-linked-image",
+        payload: { linkUrl: info.linkUrl }
+      }).catch(console.warn);
+      return;
     }
+    void ensureAndSend(tab.id, { type: "workbench/pick-image" }).catch(console.warn);
   });
 
   chrome.action.onClicked.addListener((tab) => {

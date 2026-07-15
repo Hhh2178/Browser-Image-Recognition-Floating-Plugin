@@ -13,7 +13,8 @@ export const test = base.extend<ExtensionFixtures>({
     const extensionPath = path.resolve(".output/chrome-mv3");
     const userDataDir = path.resolve("test-results/extension-profile");
     const context = await chromium.launchPersistentContext(userDataDir, {
-      headless: false,
+      headless: true,
+      channel: "chromium",
       viewport: { width: 1440, height: 900 },
       args: [
         `--disable-extensions-except=${extensionPath}`,

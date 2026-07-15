@@ -1,41 +1,39 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { expect, it, vi } from "vitest";
 import { Workbench } from "./Workbench";
 
-it("keeps a result when switching from float to dock", () => {
-  const saveLayout = vi.fn();
+it("renders only as a floating window and clamps a stale position", async () => {
   render(
     <Workbench
-      initialMode="float"
       initialResult="analysis result"
       source={null}
+      initialPosition={{ x: 5000, y: 5000 }}
       onAnalyze={vi.fn()}
       onOpenSettings={vi.fn()}
       onOpenHistory={vi.fn()}
       onClose={vi.fn()}
-      saveLayout={saveLayout}
     />
   );
 
-  fireEvent.click(screen.getByRole("button", { name: "停靠到右侧" }));
-
   expect(screen.getByText("analysis result")).toBeVisible();
-  expect(screen.getByTestId("workbench-shell")).toHaveAttribute("data-mode", "dock");
-  expect(saveLayout).toHaveBeenCalledWith("dock");
+  expect(screen.queryByRole("button", { name: "停靠到右侧" })).not.toBeInTheDocument();
+  const shell = screen.getByTestId("workbench-shell");
+  await waitFor(() => {
+    expect(Number.parseFloat(shell.style.left)).toBeLessThan(window.innerWidth);
+    expect(Number.parseFloat(shell.style.top)).toBeLessThan(window.innerHeight);
+  });
 });
 
 it("starts page image picking from the empty source state", () => {
   const onPickImage = vi.fn();
   render(
     <Workbench
-      initialMode="float"
       source={null}
       onAnalyze={vi.fn()}
       onPickImage={onPickImage}
       onOpenSettings={vi.fn()}
       onOpenHistory={vi.fn()}
       onClose={vi.fn()}
-      saveLayout={vi.fn()}
     />
   );
 

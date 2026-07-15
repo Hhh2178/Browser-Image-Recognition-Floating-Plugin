@@ -16,17 +16,14 @@ import type { Settings } from "../../src/features/settings/settings-schema";
 import { Workbench } from "../../src/features/workbench/Workbench";
 import type {
   AnalyzeSelection,
-  LayoutMode,
   WorkbenchSource
 } from "../../src/features/workbench/workbench-types";
-import "./style.css";
+import workbenchCss from "./style.css?inline";
 
-const LAYOUT_KEY = "hhhLayoutMode";
 const POSITION_KEY = "hhhFloatPosition";
 
 export default defineContentScript({
   registration: "runtime",
-  cssInjectionMode: "ui",
   async main(ctx) {
     type UiMessage = WorkbenchOpenMessage
       | { type: "workbench/pick-image" }
@@ -58,6 +55,7 @@ export default defineContentScript({
       name: "hhh-workbench",
       position: "inline",
       anchor: "body",
+      css: workbenchCss,
       onMount(container) {
         const root = createRoot(container);
         root.render(<ContentApp subscribe={(listener) => {
@@ -92,7 +90,6 @@ function ContentApp(props: {
   const [source, setSource] = useState<WorkbenchSource | null>(null);
   const [settings, setSettings] = useState<Settings | null>(null);
   const [prompts, setPrompts] = useState<PromptPreset[]>([]);
-  const [mode, setMode] = useState<LayoutMode>("float");
   const [position, setPosition] = useState<{ x: number; y: number } | null>(null);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [history, setHistory] = useState<HistoryRecord[]>([]);
@@ -102,12 +99,11 @@ function ContentApp(props: {
     void Promise.all([
       loadSettings(),
       listPrompts(),
-      chrome.storage.local.get([LAYOUT_KEY, POSITION_KEY])
-    ]).then(([nextSettings, nextPrompts, layout]) => {
+      chrome.storage.local.get([POSITION_KEY])
+    ]).then(([nextSettings, nextPrompts, stored]) => {
       setSettings(nextSettings);
       setPrompts(nextPrompts);
-      setMode(layout[LAYOUT_KEY] === "dock" ? "dock" : "float");
-      const storedPosition: unknown = layout[POSITION_KEY];
+      const storedPosition: unknown = stored[POSITION_KEY];
       if (
         storedPosition
         && typeof storedPosition === "object"
@@ -350,7 +346,6 @@ function ContentApp(props: {
     <>
       <Workbench
         key={restored?.id ?? "active"}
-        initialMode={mode}
         {...(restored ? { initialResult: restored.result } : {})}
         source={source}
         {...(prompts.length ? { prompts } : {})}
@@ -363,10 +358,6 @@ function ContentApp(props: {
         onOpenHistory={() => void openHistory()}
         onManagePrompts={() => void chrome.runtime.openOptionsPage()}
         onClose={() => setVisible(false)}
-        saveLayout={(nextMode) => {
-          setMode(nextMode);
-          void chrome.storage.local.set({ [LAYOUT_KEY]: nextMode });
-        }}
         savePosition={(nextPosition) => {
           setPosition(nextPosition);
           void chrome.storage.local.set({ [POSITION_KEY]: nextPosition });
