@@ -9,9 +9,12 @@ import { executeAnalysisRequest } from "../src/features/analysis/execute-request
 import { AnalysisRequestError } from "../src/features/analysis/parse-response";
 import { loadSettings } from "../src/features/settings/settings-repository";
 import { historyRepository } from "../src/features/history/history-repository";
+import {
+  CONTEXT_MENU_DEFINITIONS,
+  IMAGE_MENU_ID,
+  PICK_MENU_ID
+} from "../src/features/media/context-menu-definitions";
 
-const IMAGE_MENU_ID = "analyze-image";
-const PICK_MENU_ID = "pick-page-image";
 const CONTENT_SCRIPT_FILE = "content-scripts/content.js";
 
 export default defineBackground(() => {
@@ -93,16 +96,9 @@ export default defineBackground(() => {
 
 function registerMenu(): void {
   chrome.contextMenus.removeAll(() => {
-    chrome.contextMenus.create({
-      id: IMAGE_MENU_ID,
-      title: "分析这张图片",
-      contexts: ["image"]
-    });
-    chrome.contextMenus.create({
-      id: PICK_MENU_ID,
-      title: "选择页面图片进行分析",
-      contexts: ["page"]
-    });
+    for (const definition of CONTEXT_MENU_DEFINITIONS) {
+      chrome.contextMenus.create(definition);
+    }
   });
 }
 

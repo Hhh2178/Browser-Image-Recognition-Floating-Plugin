@@ -90,7 +90,7 @@ function isEligiblePageImage(image: HTMLImageElement): boolean {
     return false;
   }
   const rect = image.getBoundingClientRect();
-  if (rect.width < 80 || rect.height < 60) {
+  if (rect.width < 48 || rect.height < 48) {
     return false;
   }
   return !(

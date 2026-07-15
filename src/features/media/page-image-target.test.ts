@@ -27,3 +27,36 @@ it("finds an image behind an overlay element", () => {
 
   expect(result).toBe(image);
 });
+
+it("accepts a visible thumbnail while rejecting a small icon", () => {
+  const thumbnail = document.createElement("img");
+  thumbnail.src = "https://example.com/thumbnail.jpg";
+  const icon = document.createElement("img");
+  icon.src = "https://example.com/icon.png";
+  document.body.append(thumbnail, icon);
+  vi.spyOn(thumbnail, "getBoundingClientRect").mockReturnValue({
+    x: 0,
+    y: 0,
+    top: 0,
+    left: 0,
+    right: 64,
+    bottom: 64,
+    width: 64,
+    height: 64,
+    toJSON: () => ({})
+  });
+  vi.spyOn(icon, "getBoundingClientRect").mockReturnValue({
+    x: 80,
+    y: 0,
+    top: 0,
+    left: 80,
+    right: 112,
+    bottom: 32,
+    width: 32,
+    height: 32,
+    toJSON: () => ({})
+  });
+
+  expect(findBestPageImage(thumbnail, { clientX: 20, clientY: 20 })).toBe(thumbnail);
+  expect(findBestPageImage(icon, { clientX: 90, clientY: 10 })).toBeNull();
+});

@@ -277,8 +277,6 @@ function ContentApp(props: {
       if (
         !image
         || image === highlighted
-        || image.getBoundingClientRect().width < 80
-        || image.getBoundingClientRect().height < 60
       ) {
         return;
       }
