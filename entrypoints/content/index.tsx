@@ -23,12 +23,15 @@ const LAYOUT_KEY = "hhhLayoutMode";
 const POSITION_KEY = "hhhFloatPosition";
 
 export default defineContentScript({
-  matches: ["<all_urls>"],
   registration: "runtime",
   cssInjectionMode: "ui",
   async main(ctx) {
     const subscribers = new Set<(message: WorkbenchOpenMessage) => void>();
-    chrome.runtime.onMessage.addListener((message: RuntimeMessage) => {
+    chrome.runtime.onMessage.addListener((message: RuntimeMessage, _sender, sendResponse) => {
+      if (message.type === "workbench/ping") {
+        sendResponse({ ready: true });
+        return false;
+      }
       if (
         message.type === "workbench/open"
         || message.type === "workbench/open-screenshot"

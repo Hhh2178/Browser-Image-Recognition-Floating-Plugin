@@ -105,8 +105,30 @@ async function ensureAndSend(
       target: { tabId },
       files: [CONTENT_SCRIPT_FILE]
     });
+    await waitForContentReady(tabId);
     await chrome.tabs.sendMessage(tabId, message);
   }
+}
+
+async function waitForContentReady(tabId: number): Promise<void> {
+  for (let attempt = 0; attempt < 20; attempt += 1) {
+    try {
+      const response: unknown = await chrome.tabs.sendMessage(tabId, {
+        type: "workbench/ping"
+      } satisfies RuntimeMessage);
+      if (
+        response
+        && typeof response === "object"
+        && (response as { ready?: unknown }).ready === true
+      ) {
+        return;
+      }
+    } catch {
+      // The content script is still starting.
+    }
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+  throw new Error("工作台注入后未能及时启动");
 }
 
 async function openActiveScreenshot(

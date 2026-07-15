@@ -2,7 +2,16 @@ import eslint from "@eslint/js";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config(
-  { ignores: [".output/**", ".wxt/**", "coverage/**", "eslint.config.js"] },
+  {
+    ignores: [
+      ".output/**",
+      ".wxt/**",
+      "coverage/**",
+      "eslint.config.js",
+      "scripts/**/*.mjs",
+      "tests/fixtures/**/*.mjs"
+    ]
+  },
   eslint.configs.recommended,
   ...tseslint.configs.recommendedTypeChecked,
   {

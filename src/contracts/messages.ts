@@ -24,6 +24,7 @@ export type WorkbenchOpenMessage =
 
 export type RuntimeMessage =
   | WorkbenchOpenMessage
+  | { type: "workbench/ping" }
   | { type: "workbench/open-from-hover"; payload: {
       sourceUrl: string;
       pageUrl: string;

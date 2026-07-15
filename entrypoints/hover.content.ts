@@ -1,7 +1,6 @@
 const BUTTON_ID = "hhh-hover-analyze";
 
 export default defineContentScript({
-  matches: ["http://*/*", "https://*/*"],
   registration: "runtime",
   main() {
     let activeImage: HTMLImageElement | null = null;
