@@ -7,6 +7,9 @@ export default defineConfig({
     description: "分析网页图片和截图，并生成可复用的视觉提示词。",
     permissions: ["contextMenus", "storage", "activeTab", "scripting"],
     optional_host_permissions: ["http://*/*", "https://*/*"],
+    action: {
+      default_title: "打开 Hhh Prompt Studio Next"
+    },
     commands: {
       "analyze-screenshot": {
         suggested_key: { default: "Ctrl+Shift+Y" },
