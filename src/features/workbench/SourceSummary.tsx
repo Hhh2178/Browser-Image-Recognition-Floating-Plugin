@@ -1,14 +1,24 @@
-import { Image as ImageIcon, MonitorUp } from "lucide-react";
+import { Image as ImageIcon, MousePointer2, MonitorUp } from "lucide-react";
 import type { WorkbenchSource } from "./workbench-types";
 
-export function SourceSummary({ source }: { source: WorkbenchSource | null }) {
+export function SourceSummary(props: {
+  source: WorkbenchSource | null;
+  onPickImage?: () => void;
+}) {
+  const { source } = props;
   if (!source) {
     return (
       <section className="source-empty">
         <ImageIcon size={22} />
         <div>
           <strong>等待素材</strong>
-          <span>右键图片或使用截图快捷键开始</span>
+          <span>右键图片、截图，或直接从页面选择</span>
+          {props.onPickImage ? (
+            <button type="button" className="pick-image-button" onClick={props.onPickImage}>
+              <MousePointer2 size={15} />
+              从当前页面选择图片
+            </button>
+          ) : null}
         </div>
       </section>
     );

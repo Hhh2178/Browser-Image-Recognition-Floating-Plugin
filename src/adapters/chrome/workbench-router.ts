@@ -1,7 +1,10 @@
 import type { WorkbenchOpenMessage } from "../../contracts/messages";
 
 interface RouterDependencies {
-  ensureAndSend(tabId: number, message: WorkbenchOpenMessage): Promise<void>;
+  ensureAndSend(
+    tabId: number,
+    message: WorkbenchOpenMessage | { type: "workbench/pick-image" }
+  ): Promise<void>;
 }
 
 export function createWorkbenchRouter(dependencies: RouterDependencies) {

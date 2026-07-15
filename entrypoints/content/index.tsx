@@ -7,6 +7,7 @@ import type {
 } from "../../src/contracts/messages";
 import { HistoryDrawer } from "../../src/features/history/HistoryDrawer";
 import type { HistoryRecord } from "../../src/features/history/history-db";
+import { findBestPageImage } from "../../src/features/media/page-image-target";
 import { listPrompts } from "../../src/features/prompts/prompt-repository";
 import { renderPrompt, type PromptPreset } from "../../src/features/prompts/prompt-schema";
 import { loadSettings } from "../../src/features/settings/settings-repository";
@@ -26,7 +27,9 @@ export default defineContentScript({
   registration: "runtime",
   cssInjectionMode: "ui",
   async main(ctx) {
-    const subscribers = new Set<(message: WorkbenchOpenMessage) => void>();
+    type UiMessage = WorkbenchOpenMessage | { type: "workbench/pick-image" };
+    const subscribers = new Set<(message: UiMessage) => void>();
+    let pendingMessage: UiMessage | null = null;
     chrome.runtime.onMessage.addListener((message: RuntimeMessage, _sender, sendResponse) => {
       if (message.type === "workbench/ping") {
         sendResponse({ ready: true });
@@ -36,8 +39,13 @@ export default defineContentScript({
         message.type === "workbench/open"
         || message.type === "workbench/open-screenshot"
         || message.type === "workbench/show"
+        || message.type === "workbench/pick-image"
       ) {
-        subscribers.forEach((subscriber) => subscriber(message));
+        if (subscribers.size === 0) {
+          pendingMessage = message;
+        } else {
+          subscribers.forEach((subscriber) => subscriber(message));
+        }
       }
       return false;
     });
@@ -50,6 +58,11 @@ export default defineContentScript({
         const root = createRoot(container);
         root.render(<ContentApp subscribe={(listener) => {
           subscribers.add(listener);
+          if (pendingMessage) {
+            const message = pendingMessage;
+            pendingMessage = null;
+            queueMicrotask(() => listener(message));
+          }
           return () => subscribers.delete(listener);
         }} />);
         return root;
@@ -63,7 +76,9 @@ export default defineContentScript({
 });
 
 function ContentApp(props: {
-  subscribe(listener: (message: WorkbenchOpenMessage) => void): () => void;
+  subscribe(
+    listener: (message: WorkbenchOpenMessage | { type: "workbench/pick-image" }) => void
+  ): () => void;
 }) {
   const [visible, setVisible] = useState(true);
   const [source, setSource] = useState<WorkbenchSource | null>(null);
@@ -97,6 +112,10 @@ function ContentApp(props: {
   }, []);
 
   useEffect(() => props.subscribe((message) => {
+    if (message.type === "workbench/pick-image") {
+      startImagePicker();
+      return;
+    }
     setVisible(true);
     setRestored(null);
     if (message.type === "workbench/open") {
@@ -210,6 +229,100 @@ function ContentApp(props: {
     setHistoryOpen(false);
   };
 
+  const startImagePicker = () => {
+    setVisible(false);
+    let highlighted: HTMLImageElement | null = null;
+    let originalOutline = "";
+    let originalOutlineOffset = "";
+    const originalCursor = document.documentElement.style.cursor;
+    const hint = document.createElement("div");
+    hint.textContent = "点击一张图片进行分析 · Esc 取消";
+    Object.assign(hint.style, {
+      position: "fixed",
+      top: "14px",
+      left: "50%",
+      zIndex: "2147483647",
+      transform: "translateX(-50%)",
+      border: "1px solid rgb(255 255 255 / 35%)",
+      borderRadius: "6px",
+      background: "#18202b",
+      color: "#ffffff",
+      padding: "9px 13px",
+      font: '13px/1.4 "Segoe UI", sans-serif',
+      boxShadow: "0 8px 24px rgb(15 23 42 / 22%)",
+      pointerEvents: "none"
+    });
+    document.documentElement.append(hint);
+    document.documentElement.style.cursor = "crosshair";
+
+    const restoreHighlight = () => {
+      if (highlighted) {
+        highlighted.style.outline = originalOutline;
+        highlighted.style.outlineOffset = originalOutlineOffset;
+      }
+      highlighted = null;
+    };
+
+    const cleanupPicker = () => {
+      restoreHighlight();
+      hint.remove();
+      document.documentElement.style.cursor = originalCursor;
+      document.removeEventListener("pointermove", handlePointerMove, true);
+      document.removeEventListener("click", handleClick, true);
+      window.removeEventListener("keydown", handleKeyDown, true);
+    };
+
+    const handlePointerMove = (event: PointerEvent) => {
+      const image = findBestPageImage(event.target, event);
+      if (
+        !image
+        || image === highlighted
+        || image.getBoundingClientRect().width < 80
+        || image.getBoundingClientRect().height < 60
+      ) {
+        return;
+      }
+      restoreHighlight();
+      highlighted = image;
+      originalOutline = image.style.outline;
+      originalOutlineOffset = image.style.outlineOffset;
+      image.style.outline = "3px solid #2563eb";
+      image.style.outlineOffset = "3px";
+    };
+
+    const handleClick = (event: MouseEvent) => {
+      const image = findBestPageImage(event.target, event) ?? highlighted;
+      if (!image) {
+        return;
+      }
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      const sourceUrl = image.currentSrc || image.src;
+      cleanupPicker();
+      setSource({
+        sourceType: "image",
+        previewUrl: sourceUrl,
+        imageDataUrl: "",
+        sourceUrl,
+        pageUrl: location.href,
+        pageTitle: document.title
+      });
+      setRestored(null);
+      setVisible(true);
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        cleanupPicker();
+        setVisible(true);
+      }
+    };
+
+    document.addEventListener("pointermove", handlePointerMove, true);
+    document.addEventListener("click", handleClick, true);
+    window.addEventListener("keydown", handleKeyDown, true);
+  };
+
   if (!visible) {
     return null;
   }
@@ -226,6 +339,7 @@ function ContentApp(props: {
         theme={settings?.theme ?? "system"}
         {...(position ? { initialPosition: position } : {})}
         onAnalyze={analyze}
+        onPickImage={startImagePicker}
         onOpenSettings={() => void chrome.runtime.sendMessage({ type: "settings/open" })}
         onOpenHistory={() => void openHistory()}
         onManagePrompts={() => void chrome.runtime.openOptionsPage()}

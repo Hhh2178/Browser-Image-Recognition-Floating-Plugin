@@ -19,6 +19,7 @@ export function Workbench(props: {
   prompts?: PromptPreset[];
   modelName?: string;
   onAnalyze: (selection: AnalyzeSelection) => Promise<{ content: string; durationMs: number } | undefined> | void;
+  onPickImage?: () => void;
   onOpenSettings: () => void;
   onOpenHistory: () => void;
   onManagePrompts?: () => void;
@@ -143,7 +144,10 @@ export function Workbench(props: {
       />
       {minimized ? null : (
         <div className="workbench-body">
-          <SourceSummary source={props.source} />
+          <SourceSummary
+            source={props.source}
+            {...(props.onPickImage ? { onPickImage: props.onPickImage } : {})}
+          />
           <AnalysisControls
             prompts={prompts}
             selectedPromptId={promptId}

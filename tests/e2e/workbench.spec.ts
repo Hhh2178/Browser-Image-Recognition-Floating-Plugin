@@ -2,7 +2,8 @@ import fs from "node:fs/promises";
 import {
   configureFixtureApi,
   injectAndOpenImage,
-  injectAndOpenScreenshot
+  injectAndOpenScreenshot,
+  injectAndShowWorkbench
 } from "./helpers";
 import { expect, test } from "./extension.fixture";
 
@@ -67,6 +68,21 @@ test("captures and analyzes a visible screenshot", async ({ page, serviceWorker 
   await expect(shell.getByText("网页截图", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "开始分析" }).click();
   await expect(page.getByText("测试分析结果：主体居中，冷灰背景，柔和侧光。")).toBeVisible();
+});
+
+test("selects an image from the current page", async ({ page, serviceWorker }) => {
+  await page.goto("http://127.0.0.1:43118/");
+  await injectAndShowWorkbench(page, serviceWorker);
+
+  await page.getByRole("button", { name: "从当前页面选择图片" }).click();
+  await expect(page.getByText("点击一张图片进行分析 · Esc 取消", { exact: true })).toBeVisible();
+  const image = page.locator("#reference-image");
+  await image.hover();
+  await image.click();
+
+  const shell = page.getByTestId("workbench-shell");
+  await expect(shell.getByText("视觉分析扩展测试页", { exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "开始分析" })).toBeEnabled();
 });
 
 test("opens the extension options page", async ({ page, extensionId }) => {

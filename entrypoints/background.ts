@@ -10,30 +10,37 @@ import { AnalysisRequestError } from "../src/features/analysis/parse-response";
 import { loadSettings } from "../src/features/settings/settings-repository";
 import { historyRepository } from "../src/features/history/history-repository";
 
-const MENU_ID = "analyze-image";
+const IMAGE_MENU_ID = "analyze-image";
+const PICK_MENU_ID = "pick-page-image";
 const CONTENT_SCRIPT_FILE = "content-scripts/content.js";
 
 export default defineBackground(() => {
   const router = createWorkbenchRouter({ ensureAndSend });
 
+  registerMenu();
   chrome.runtime.onInstalled.addListener(registerMenu);
   chrome.runtime.onStartup.addListener(registerMenu);
 
   chrome.contextMenus.onClicked.addListener((info, tab) => {
-    if (info.menuItemId !== MENU_ID || !tab?.id || !info.srcUrl) {
+    if (!tab?.id) {
       return;
     }
-    void router.openImage({
-      tabId: tab.id,
-      sourceUrl: info.srcUrl,
-      pageUrl: tab.url ?? "",
-      pageTitle: tab.title ?? ""
-    }).catch(console.warn);
+    if (info.menuItemId === IMAGE_MENU_ID && info.srcUrl) {
+      void router.openImage({
+        tabId: tab.id,
+        sourceUrl: info.srcUrl,
+        pageUrl: tab.url ?? "",
+        pageTitle: tab.title ?? ""
+      }).catch(console.warn);
+    }
+    if (info.menuItemId === PICK_MENU_ID) {
+      void ensureAndSend(tab.id, { type: "workbench/pick-image" }).catch(console.warn);
+    }
   });
 
   chrome.action.onClicked.addListener((tab) => {
     if (tab.id) {
-      void router.show(tab.id, tab.url ?? "").catch(console.warn);
+      void ensureAndSend(tab.id, { type: "workbench/pick-image" }).catch(console.warn);
     }
   });
 
@@ -87,16 +94,21 @@ export default defineBackground(() => {
 function registerMenu(): void {
   chrome.contextMenus.removeAll(() => {
     chrome.contextMenus.create({
-      id: MENU_ID,
+      id: IMAGE_MENU_ID,
       title: "分析这张图片",
       contexts: ["image"]
+    });
+    chrome.contextMenus.create({
+      id: PICK_MENU_ID,
+      title: "选择页面图片进行分析",
+      contexts: ["page"]
     });
   });
 }
 
 async function ensureAndSend(
   tabId: number,
-  message: WorkbenchOpenMessage
+  message: WorkbenchOpenMessage | { type: "workbench/pick-image" }
 ): Promise<void> {
   try {
     await chrome.tabs.sendMessage(tabId, message);

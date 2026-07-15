@@ -147,6 +147,25 @@
   font-size: 12px;
 }
 
+.pick-image-button {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  border: 1px solid var(--hhh-border-strong);
+  border-radius: var(--hhh-radius-sm);
+  background: var(--hhh-surface);
+  color: var(--hhh-text);
+  padding: 6px 9px;
+  cursor: pointer;
+}
+
+.pick-image-button:hover {
+  border-color: var(--hhh-accent);
+  color: var(--hhh-accent);
+}
+
 .source-thumbnail {
   width: 70px;
   height: 58px;
