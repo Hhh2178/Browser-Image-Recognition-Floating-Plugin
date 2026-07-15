@@ -1,0 +1,10 @@
+.superpowers/
+node_modules/
+.output/
+dist/
+coverage/
+*.log
+.env
+.env.*
+!.env.example
+
