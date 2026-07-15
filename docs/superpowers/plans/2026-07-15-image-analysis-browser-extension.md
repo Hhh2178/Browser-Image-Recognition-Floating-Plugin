@@ -1,6 +1,6 @@
 # Image Analysis Browser Extension Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** Execute this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking, with a test-first change and verification before each commit.
 
 **Goal:** Build a testable Manifest V3 browser extension for image and screenshot analysis with float/dock UI modes, prompt presets, OpenAI-compatible model configuration, local history, and least-privilege permissions.
 
