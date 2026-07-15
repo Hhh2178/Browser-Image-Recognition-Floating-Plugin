@@ -57,3 +57,48 @@ export async function injectAndOpenImage(
     });
   }, { pageUrl });
 }
+
+export async function injectAndOpenScreenshot(
+  page: Page,
+  worker: Worker
+): Promise<void> {
+  const pageUrl = page.url();
+  await worker.evaluate(async ({ pageUrl }) => {
+    const [tab] = await chrome.tabs.query({ url: pageUrl });
+    if (!tab?.id) {
+      throw new Error("Fixture tab not found");
+    }
+    const imageDataUrl = await chrome.tabs.captureVisibleTab(tab.windowId, {
+      format: "png"
+    });
+    await chrome.scripting.executeScript({
+      target: { tabId: tab.id },
+      files: ["content-scripts/content.js"]
+    });
+    for (let attempt = 0; attempt < 20; attempt += 1) {
+      try {
+        const response: unknown = await chrome.tabs.sendMessage(tab.id, {
+          type: "workbench/ping"
+        });
+        if (
+          response
+          && typeof response === "object"
+          && (response as { ready?: unknown }).ready === true
+        ) {
+          break;
+        }
+      } catch {
+        await new Promise((resolve) => setTimeout(resolve, 50));
+      }
+    }
+    await chrome.tabs.sendMessage(tab.id, {
+      type: "workbench/open-screenshot",
+      payload: {
+        sourceType: "screenshot",
+        imageDataUrl,
+        pageUrl,
+        pageTitle: "视觉分析扩展测试页"
+      }
+    });
+  }, { pageUrl });
+}

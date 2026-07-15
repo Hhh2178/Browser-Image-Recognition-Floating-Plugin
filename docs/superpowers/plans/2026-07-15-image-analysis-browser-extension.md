@@ -1,6 +1,6 @@
 # Image Analysis Browser Extension Implementation Plan
 
-> **For agentic workers:** Execute this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking, with a test-first change and verification before each commit.
+> **For agentic workers:** Execute this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking, with a test-first change and verification before each commit.
 
 **Goal:** Build a testable Manifest V3 browser extension for image and screenshot analysis with float/dock UI modes, prompt presets, OpenAI-compatible model configuration, local history, and least-privilege permissions.
 
@@ -42,7 +42,7 @@
 - Create: `entrypoints/content/style.css`
 - Test: `src/smoke.test.ts`
 
-- [ ] **Step 1: Write the failing smoke test**
+- [x] **Step 1: Write the failing smoke test**
 
 ```ts
 // src/smoke.test.ts
@@ -56,7 +56,7 @@ describe("app metadata", () => {
 });
 ```
 
-- [ ] **Step 2: Create package and tool configuration**
+- [x] **Step 2: Create package and tool configuration**
 
 ```json
 {
@@ -124,7 +124,7 @@ export default defineConfig({
 });
 ```
 
-- [ ] **Step 3: Add strict compiler, lint, and test configuration**
+- [x] **Step 3: Add strict compiler, lint, and test configuration**
 
 ```json
 // tsconfig.json
@@ -177,7 +177,7 @@ import "@testing-library/jest-dom/vitest";
 import "fake-indexeddb/auto";
 ```
 
-- [ ] **Step 4: Install dependencies and verify the test fails**
+- [x] **Step 4: Install dependencies and verify the test fails**
 
 Run: `npm install`
 
@@ -185,7 +185,7 @@ Run: `npm test -- src/smoke.test.ts`
 
 Expected: FAIL because `src/app-meta.ts` does not exist.
 
-- [ ] **Step 5: Add the minimum app and entrypoint code**
+- [x] **Step 5: Add the minimum app and entrypoint code**
 
 ```ts
 // src/app-meta.ts
@@ -256,7 +256,7 @@ export default defineContentScript({
 }
 ```
 
-- [ ] **Step 6: Run baseline verification**
+- [x] **Step 6: Run baseline verification**
 
 Run: `npm test -- src/smoke.test.ts`
 
@@ -266,7 +266,7 @@ Run: `npm run lint && npm run typecheck && npm run build`
 
 Expected: both commands exit 0 and `.output/chrome-mv3/` exists.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add package.json package-lock.json tsconfig.json wxt.config.ts vitest.config.ts entrypoints src/smoke.test.ts src/app-meta.ts
@@ -282,7 +282,7 @@ git commit -m "chore: scaffold WXT extension"
 - Create: `src/features/settings/settings-repository.ts`
 - Test: `src/features/settings/settings-schema.test.ts`
 
-- [ ] **Step 1: Write failing settings tests**
+- [x] **Step 1: Write failing settings tests**
 
 ```ts
 import { describe, expect, it } from "vitest";
@@ -307,13 +307,13 @@ describe("settings", () => {
 });
 ```
 
-- [ ] **Step 2: Run the tests and confirm RED**
+- [x] **Step 2: Run the tests and confirm RED**
 
 Run: `npm test -- src/features/settings/settings-schema.test.ts`
 
 Expected: FAIL because the settings module is missing.
 
-- [ ] **Step 3: Add shared schemas and repository**
+- [x] **Step 3: Add shared schemas and repository**
 
 ```ts
 // src/features/settings/settings-schema.ts
@@ -364,7 +364,7 @@ export interface AnalysisRequest {
 }
 ```
 
-- [ ] **Step 4: Run GREEN verification**
+- [x] **Step 4: Run GREEN verification**
 
 Run: `npm test -- src/features/settings/settings-schema.test.ts`
 
@@ -374,7 +374,7 @@ Run: `npm run typecheck`
 
 Expected: exit 0.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/contracts src/features/settings
@@ -390,7 +390,7 @@ git commit -m "feat: add typed settings and message contracts"
 - Create: `src/features/prompts/prompt-import.ts`
 - Test: `src/features/prompts/prompt-library.test.ts`
 
-- [ ] **Step 1: Write failing schema, rendering, and legacy import tests**
+- [x] **Step 1: Write failing schema, rendering, and legacy import tests**
 
 ```ts
 import { describe, expect, it } from "vitest";
@@ -421,13 +421,13 @@ describe("prompt library", () => {
 });
 ```
 
-- [ ] **Step 2: Run RED**
+- [x] **Step 2: Run RED**
 
 Run: `npm test -- src/features/prompts/prompt-library.test.ts`
 
 Expected: FAIL because prompt modules do not exist.
 
-- [ ] **Step 3: Add the schema and strict variable renderer**
+- [x] **Step 3: Add the schema and strict variable renderer**
 
 ```ts
 // src/features/prompts/prompt-schema.ts
@@ -458,7 +458,7 @@ export function renderPrompt(content: string, variables: PromptVariables): strin
 }
 ```
 
-- [ ] **Step 4: Add legacy import and storage behavior**
+- [x] **Step 4: Add legacy import and storage behavior**
 
 ```ts
 // src/features/prompts/prompt-import.ts
@@ -518,7 +518,7 @@ export function duplicatePrompt(prompt: Prompt): Prompt {
 }
 ```
 
-- [ ] **Step 5: Run GREEN and commit**
+- [x] **Step 5: Run GREEN and commit**
 
 Run: `npm test -- src/features/prompts/prompt-library.test.ts && npm run typecheck`
 
@@ -537,7 +537,7 @@ git commit -m "feat: add validated prompt preset library"
 - Create: `src/features/media/canvas-adapter.ts`
 - Test: `src/features/media/prepare-image.test.ts`
 
-- [ ] **Step 1: Write failing media tests**
+- [x] **Step 1: Write failing media tests**
 
 ```ts
 import { describe, expect, it } from "vitest";
@@ -557,13 +557,13 @@ describe("media validation", () => {
 });
 ```
 
-- [ ] **Step 2: Run RED**
+- [x] **Step 2: Run RED**
 
 Run: `npm test -- src/features/media/prepare-image.test.ts`
 
 Expected: FAIL because `validateMedia` is missing.
 
-- [ ] **Step 3: Implement deterministic validation**
+- [x] **Step 3: Implement deterministic validation**
 
 ```ts
 // src/features/media/media-schema.ts
@@ -614,7 +614,7 @@ export async function prepareImage(input: Blob, adapter: CanvasAdapter) {
 }
 ```
 
-- [ ] **Step 4: Run GREEN and commit**
+- [x] **Step 4: Run GREEN and commit**
 
 Run: `npm test -- src/features/media/prepare-image.test.ts && npm run typecheck`
 
@@ -635,7 +635,7 @@ git commit -m "feat: validate and prepare image inputs"
 - Create: `src/features/analysis/execute-request.ts`
 - Test: `src/features/analysis/analysis-core.test.ts`
 
-- [ ] **Step 1: Write failing request and redaction tests**
+- [x] **Step 1: Write failing request and redaction tests**
 
 ```ts
 import { describe, expect, it } from "vitest";
@@ -659,13 +659,13 @@ describe("analysis core", () => {
 });
 ```
 
-- [ ] **Step 2: Run RED**
+- [x] **Step 2: Run RED**
 
 Run: `npm test -- src/features/analysis/analysis-core.test.ts`
 
 Expected: FAIL because analysis modules do not exist.
 
-- [ ] **Step 3: Implement endpoint and response contracts**
+- [x] **Step 3: Implement endpoint and response contracts**
 
 ```ts
 // src/features/analysis/endpoint.ts
@@ -750,7 +750,7 @@ export function redactDiagnostic(value: Record<string, unknown>): Record<string,
 }
 ```
 
-- [ ] **Step 4: Run GREEN and commit**
+- [x] **Step 4: Run GREEN and commit**
 
 Run: `npm test -- src/features/analysis/analysis-core.test.ts && npm run typecheck`
 
@@ -769,7 +769,7 @@ git commit -m "feat: add OpenAI-compatible analysis core"
 - Create: `src/adapters/chrome/inject-workbench.ts`
 - Test: `src/adapters/chrome/inject-workbench.test.ts`
 
-- [ ] **Step 1: Write a failing message routing test**
+- [x] **Step 1: Write a failing message routing test**
 
 ```ts
 import { describe, expect, it, vi } from "vitest";
@@ -786,13 +786,13 @@ it("opens the workbench with normalized image context", async () => {
 });
 ```
 
-- [ ] **Step 2: Run RED**
+- [x] **Step 2: Run RED**
 
 Run: `npm test -- src/adapters/chrome/inject-workbench.test.ts`
 
 Expected: FAIL because router is missing.
 
-- [ ] **Step 3: Add typed runtime messages and listeners**
+- [x] **Step 3: Add typed runtime messages and listeners**
 
 ```ts
 // src/contracts/messages.ts
@@ -845,7 +845,7 @@ export default defineBackground(() => {
 });
 ```
 
-- [ ] **Step 4: Run GREEN, build, and commit**
+- [x] **Step 4: Run GREEN, build, and commit**
 
 Run: `npm test -- src/adapters/chrome/inject-workbench.test.ts && npm run build`
 
@@ -868,7 +868,7 @@ git commit -m "feat: connect browser actions to typed workbench messages"
 - Modify: `entrypoints/content/index.tsx`
 - Test: `src/features/workbench/Workbench.test.tsx`
 
-- [ ] **Step 1: Write failing state persistence tests**
+- [x] **Step 1: Write failing state persistence tests**
 
 ```tsx
 import { fireEvent, render, screen } from "@testing-library/react";
@@ -883,13 +883,13 @@ it("keeps the result when switching from float to dock", async () => {
 });
 ```
 
-- [ ] **Step 2: Run RED**
+- [x] **Step 2: Run RED**
 
 Run: `npm test -- src/features/workbench/Workbench.test.tsx`
 
 Expected: FAIL because workbench components are missing.
 
-- [ ] **Step 3: Implement one component tree with a layout reducer**
+- [x] **Step 3: Implement one component tree with a layout reducer**
 
 ```ts
 // src/features/workbench/workbench-machine.ts
@@ -954,7 +954,7 @@ export function Workbench({ initialResult, saveLayout }: {
 
 The shell applies `data-mode="float|dock"`; no child component branches on layout mode. Drag and resize update CSS custom properties and call `saveLayout` only on pointer release.
 
-- [ ] **Step 4: Run GREEN and commit**
+- [x] **Step 4: Run GREEN and commit**
 
 Run: `npm test -- src/features/workbench/Workbench.test.tsx && npm run typecheck`
 
@@ -976,7 +976,7 @@ git commit -m "feat: add shared float and dock workbench"
 - Test: `src/features/prompts/PromptManager.test.tsx`
 - Test: `entrypoints/options/App.test.tsx`
 
-- [ ] **Step 1: Write failing prompt CRUD and secret export tests**
+- [x] **Step 1: Write failing prompt CRUD and secret export tests**
 
 ```tsx
 it("duplicates a builtin before editing", async () => {
@@ -992,13 +992,13 @@ it("exports settings without API key", async () => {
 });
 ```
 
-- [ ] **Step 2: Run RED**
+- [x] **Step 2: Run RED**
 
 Run: `npm test -- src/features/prompts/PromptManager.test.tsx entrypoints/options/App.test.tsx`
 
 Expected: FAIL because UI modules are missing.
 
-- [ ] **Step 3: Implement validated forms**
+- [x] **Step 3: Implement validated forms**
 
 ```tsx
 // src/features/prompts/PromptEditor.tsx
@@ -1123,7 +1123,7 @@ export function PromptImportResult({ imported, errors, collision, onOverwrite, o
 }
 ```
 
-- [ ] **Step 4: Run GREEN and commit**
+- [x] **Step 4: Run GREEN and commit**
 
 Run: `npm test -- src/features/prompts/PromptManager.test.tsx entrypoints/options/App.test.tsx && npm run build`
 
@@ -1143,7 +1143,7 @@ git commit -m "feat: add prompt manager and model settings"
 - Test: `src/features/history/history-repository.test.ts`
 - Test: `src/features/history/HistoryDrawer.test.tsx`
 
-- [ ] **Step 1: Write failing retention and restore tests**
+- [x] **Step 1: Write failing retention and restore tests**
 
 ```ts
 it("keeps only the newest 50 successful records", async () => {
@@ -1155,13 +1155,13 @@ it("keeps only the newest 50 successful records", async () => {
 });
 ```
 
-- [ ] **Step 2: Run RED**
+- [x] **Step 2: Run RED**
 
 Run: `npm test -- src/features/history`
 
 Expected: FAIL because history modules are missing.
 
-- [ ] **Step 3: Implement Dexie storage and drawer**
+- [x] **Step 3: Implement Dexie storage and drawer**
 
 ```ts
 // src/features/history/history-db.ts
@@ -1242,7 +1242,7 @@ export function HistoryDrawer({ records, onRestore, onDelete }: {
 }
 ```
 
-- [ ] **Step 4: Run GREEN and commit**
+- [x] **Step 4: Run GREEN and commit**
 
 Run: `npm test -- src/features/history && npm run typecheck`
 
@@ -1261,7 +1261,7 @@ git commit -m "feat: add capped local analysis history"
 - Modify: `entrypoints/options/App.tsx`
 - Test: `src/features/settings/permissions.test.ts`
 
-- [ ] **Step 1: Write failing permission tests**
+- [x] **Step 1: Write failing permission tests**
 
 ```ts
 it("requests only the configured API origin", async () => {
@@ -1271,13 +1271,13 @@ it("requests only the configured API origin", async () => {
 });
 ```
 
-- [ ] **Step 2: Run RED**
+- [x] **Step 2: Run RED**
 
 Run: `npm test -- src/features/settings/permissions.test.ts`
 
 Expected: FAIL because permission helpers are missing.
 
-- [ ] **Step 3: Implement explicit permission helpers**
+- [x] **Step 3: Implement explicit permission helpers**
 
 ```ts
 export function endpointOriginPattern(value: string): string {
@@ -1317,7 +1317,7 @@ export async function setHoverPermission(enabled: boolean): Promise<boolean> {
 }
 ```
 
-- [ ] **Step 4: Run GREEN and commit**
+- [x] **Step 4: Run GREEN and commit**
 
 Run: `npm test -- src/features/settings/permissions.test.ts && npm run build`
 
@@ -1337,7 +1337,7 @@ git commit -m "feat: add optional hover and endpoint permissions"
 - Modify: workbench and options components for labels, tooltips, and focus order
 - Test: `src/features/workbench/accessibility.test.tsx`
 
-- [ ] **Step 1: Write failing accessibility tests**
+- [x] **Step 1: Write failing accessibility tests**
 
 ```tsx
 it("names icon-only controls and exposes status", () => {
@@ -1347,13 +1347,13 @@ it("names icon-only controls and exposes status", () => {
 });
 ```
 
-- [ ] **Step 2: Run RED**
+- [x] **Step 2: Run RED**
 
 Run: `npm test -- src/features/workbench/accessibility.test.tsx`
 
 Expected: FAIL until labels and live status exist.
 
-- [ ] **Step 3: Add semantic tokens and stable dimensions**
+- [x] **Step 3: Add semantic tokens and stable dimensions**
 
 ```css
 :host {
@@ -1396,7 +1396,7 @@ Expected: FAIL until labels and live status exist.
 
 Use Lucide icons for history, dock, minimize, close, settings, copy, retry, delete, and search. Every icon-only button gets `aria-label` and a tooltip. Loading uses `role="status"`; errors use `role="alert"`.
 
-- [ ] **Step 4: Run component and visual checks**
+- [x] **Step 4: Run component and visual checks**
 
 Run: `npm test -- src/features/workbench && npm run typecheck`
 
@@ -1404,7 +1404,7 @@ Expected: PASS.
 
 Manually inspect at 1366 × 768, 1920 × 1080, and a 760-pixel-wide browser window before commit.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/styles src/features/workbench entrypoints/options
@@ -1421,7 +1421,7 @@ git commit -m "feat: apply accessible workbench visual system"
 - Create: `tests/e2e/image-analysis.spec.ts`
 - Create: `tests/e2e/screenshot-analysis.spec.ts`
 
-- [ ] **Step 1: Write the failing image journey**
+- [x] **Step 1: Write the failing image journey**
 
 ```ts
 test("analyzes a page image and restores it from history", async ({ page, extensionId }) => {
@@ -1435,13 +1435,13 @@ test("analyzes a page image and restores it from history", async ({ page, extens
 });
 ```
 
-- [ ] **Step 2: Run RED**
+- [x] **Step 2: Run RED**
 
 Run: `npm run build && npm run test:e2e -- tests/e2e/image-analysis.spec.ts`
 
 Expected: FAIL until fixture helpers and the complete message path work.
 
-- [ ] **Step 3: Implement deterministic extension fixtures**
+- [x] **Step 3: Implement deterministic extension fixtures**
 
 Launch Chromium persistent context with:
 
@@ -1562,13 +1562,13 @@ test("shows timeout diagnosis without leaking a key", async ({ page }) => {
 
 `screenshot-analysis.spec.ts` calls the background screenshot command through the service worker and asserts `sourceType: "screenshot"`. `prompt-history.spec.ts` imports a fixture template, analyzes once, restores the history row, deletes it, confirms deletion, and asserts the empty state.
 
-- [ ] **Step 4: Run GREEN**
+- [x] **Step 4: Run GREEN**
 
 Run: `npm run test:e2e`
 
 Expected: all E2E tests pass with no real network requests.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add playwright.config.ts tests
@@ -1586,7 +1586,7 @@ git commit -m "test: cover critical extension journeys"
 - Create: `scripts/assert-manifest.mjs`
 - Modify: `package.json`
 
-- [ ] **Step 1: Add a packaging assertion**
+- [x] **Step 1: Add a packaging assertion**
 
 ```js
 // scripts/assert-manifest.mjs
@@ -1606,7 +1606,7 @@ assert.deepEqual(
 console.log("Manifest permission assertion passed");
 ```
 
-- [ ] **Step 2: Build then run the assertion**
+- [x] **Step 2: Build then run the assertion**
 
 Add `"check:manifest": "node scripts/assert-manifest.mjs"` to `package.json`.
 
@@ -1614,7 +1614,7 @@ Run: `npm run build && npm run check:manifest`
 
 Expected: prints `Manifest permission assertion passed`.
 
-- [ ] **Step 3: Write operator documentation**
+- [x] **Step 3: Write operator documentation**
 
 ```markdown
 <!-- README.md -->
@@ -1660,7 +1660,7 @@ Export templates from the old extension and import the JSON file in Prompt Libra
 Background owns privileged browser and network operations. The Shadow DOM React workbench owns interaction state. Prompt, media, analysis, settings, history, and diagnostics modules expose typed interfaces and do not import UI code.
 ```
 
-- [ ] **Step 4: Run the complete release gate**
+- [x] **Step 4: Run the complete release gate**
 
 Run: `npm run typecheck`
 
@@ -1686,7 +1686,7 @@ Run: `npm run zip`
 
 Expected: a distributable archive is created under `.output/`.
 
-- [ ] **Step 5: Inspect the final permission surface**
+- [x] **Step 5: Inspect the final permission surface**
 
 Open `.output/chrome-mv3/manifest.json` and verify:
 
@@ -1695,7 +1695,7 @@ Open `.output/chrome-mv3/manifest.json` and verify:
 - no API Key, Endpoint, or test fixture URL is embedded;
 - no legacy or video entrypoint is packaged.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add README.md docs package.json scripts/assert-manifest.mjs

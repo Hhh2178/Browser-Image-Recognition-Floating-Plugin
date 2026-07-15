@@ -6,7 +6,7 @@ export default defineConfig({
     name: "Hhh Prompt Studio Next",
     description: "分析网页图片和截图，并生成可复用的视觉提示词。",
     permissions: ["contextMenus", "storage", "activeTab", "scripting"],
-    host_permissions: process.env.E2E === "1" ? ["http://127.0.0.1/*"] : [],
+    host_permissions: process.env.E2E === "1" ? ["<all_urls>"] : [],
     optional_host_permissions: ["http://*/*", "https://*/*"],
     icons: {
       16: "icon/16.png",
