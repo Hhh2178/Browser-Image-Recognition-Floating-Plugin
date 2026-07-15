@@ -1,4 +1,6 @@
 .superpowers/
+.codegraph/
+.wxt/
 node_modules/
 .output/
 dist/
@@ -7,4 +9,3 @@ coverage/
 .env
 .env.*
 !.env.example
-
