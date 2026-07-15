@@ -8,6 +8,7 @@ import { redactDiagnostic } from "../src/features/analysis/diagnostics";
 import { executeAnalysisRequest } from "../src/features/analysis/execute-request";
 import { AnalysisRequestError } from "../src/features/analysis/parse-response";
 import { loadSettings } from "../src/features/settings/settings-repository";
+import { historyRepository } from "../src/features/history/history-repository";
 
 const MENU_ID = "analyze-image";
 const CONTENT_SCRIPT_FILE = "content-scripts/content.js";
@@ -49,6 +50,22 @@ export default defineBackground(() => {
   ) => {
     if (message.type === "analysis/run") {
       void runAnalysis(message.payload).then(sendResponse);
+      return true;
+    }
+    if (message.type === "history/list") {
+      void historyRepository.list().then(sendResponse);
+      return true;
+    }
+    if (message.type === "history/add") {
+      void historyRepository.add(message.payload).then(() => sendResponse({ ok: true }));
+      return true;
+    }
+    if (message.type === "history/remove") {
+      void historyRepository.remove(message.payload.id).then(() => sendResponse({ ok: true }));
+      return true;
+    }
+    if (message.type === "history/clear") {
+      void historyRepository.clear().then(() => sendResponse({ ok: true }));
       return true;
     }
     if (message.type === "settings/open") {

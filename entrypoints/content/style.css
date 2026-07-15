@@ -1,15 +1,2 @@
-:host {
-  all: initial;
-}
-
-.workbench {
-  position: fixed;
-  right: 16px;
-  bottom: 16px;
-  z-index: 2147483647;
-  border: 1px solid #cbd5e1;
-  background: #ffffff;
-  padding: 16px;
-  color: #172033;
-  font: 14px/1.5 "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
-}
+@import "../../src/styles/tokens.css";
+@import "../../src/styles/workbench.css";

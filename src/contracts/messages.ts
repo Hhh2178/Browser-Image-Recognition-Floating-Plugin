@@ -1,4 +1,5 @@
 import type { AnalysisInput } from "./analysis";
+import type { HistoryRecord } from "../features/history/history-db";
 
 export type WorkbenchOpenMessage =
   | {
@@ -29,6 +30,10 @@ export type RuntimeMessage =
       pageTitle: string;
     } }
   | { type: "analysis/run"; payload: AnalysisInput }
+  | { type: "history/add"; payload: HistoryRecord }
+  | { type: "history/list" }
+  | { type: "history/remove"; payload: { id: string } }
+  | { type: "history/clear" }
   | { type: "settings/open" };
 
 export type AnalysisResponse =
