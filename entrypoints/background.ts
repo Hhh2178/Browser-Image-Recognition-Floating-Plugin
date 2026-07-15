@@ -37,7 +37,10 @@ export default defineBackground(() => {
       }).catch(console.warn);
     }
     if (info.menuItemId === PICK_MENU_ID) {
-      void ensureAndSend(tab.id, { type: "workbench/pick-image" }).catch(console.warn);
+      const message = info.linkUrl
+        ? { type: "workbench/open-linked-image" as const, payload: { linkUrl: info.linkUrl } }
+        : { type: "workbench/pick-image" as const };
+      void ensureAndSend(tab.id, message).catch(console.warn);
     }
   });
 
@@ -104,7 +107,9 @@ function registerMenu(): void {
 
 async function ensureAndSend(
   tabId: number,
-  message: WorkbenchOpenMessage | { type: "workbench/pick-image" }
+  message: WorkbenchOpenMessage
+    | { type: "workbench/pick-image" }
+    | { type: "workbench/open-linked-image"; payload: { linkUrl: string } }
 ): Promise<void> {
   try {
     await chrome.tabs.sendMessage(tabId, message);

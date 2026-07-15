@@ -19,7 +19,9 @@ const html = `<!doctype html>
   <body>
     <main>
       <h1>视觉分析扩展测试页</h1>
-      <img id="reference-image" src="/reference.png" alt="测试参考图片">
+      <a href="/pin/fixture">
+        <img id="reference-image" src="/reference.png" alt="测试参考图片">
+      </a>
     </main>
   </body>
 </html>`;

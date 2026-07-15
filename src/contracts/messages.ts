@@ -25,6 +25,7 @@ export type WorkbenchOpenMessage =
 export type RuntimeMessage =
   | WorkbenchOpenMessage
   | { type: "workbench/pick-image" }
+  | { type: "workbench/open-linked-image"; payload: { linkUrl: string } }
   | { type: "workbench/ping" }
   | { type: "workbench/open-from-hover"; payload: {
       sourceUrl: string;

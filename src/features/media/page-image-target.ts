@@ -77,7 +77,7 @@ function collectImageCandidates(
   return candidates;
 }
 
-function isEligiblePageImage(image: HTMLImageElement): boolean {
+export function isEligiblePageImage(image: HTMLImageElement): boolean {
   if (!image.isConnected || !(image.currentSrc || image.src)) {
     return false;
   }

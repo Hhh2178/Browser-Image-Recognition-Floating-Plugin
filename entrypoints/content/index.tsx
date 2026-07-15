@@ -8,6 +8,7 @@ import type {
 import { HistoryDrawer } from "../../src/features/history/HistoryDrawer";
 import type { HistoryRecord } from "../../src/features/history/history-db";
 import { findBestPageImage } from "../../src/features/media/page-image-target";
+import { findLinkedPageImage } from "../../src/features/media/linked-image-target";
 import { listPrompts } from "../../src/features/prompts/prompt-repository";
 import { renderPrompt, type PromptPreset } from "../../src/features/prompts/prompt-schema";
 import { loadSettings } from "../../src/features/settings/settings-repository";
@@ -27,7 +28,9 @@ export default defineContentScript({
   registration: "runtime",
   cssInjectionMode: "ui",
   async main(ctx) {
-    type UiMessage = WorkbenchOpenMessage | { type: "workbench/pick-image" };
+    type UiMessage = WorkbenchOpenMessage
+      | { type: "workbench/pick-image" }
+      | { type: "workbench/open-linked-image"; payload: { linkUrl: string } };
     const subscribers = new Set<(message: UiMessage) => void>();
     let pendingMessage: UiMessage | null = null;
     chrome.runtime.onMessage.addListener((message: RuntimeMessage, _sender, sendResponse) => {
@@ -40,6 +43,7 @@ export default defineContentScript({
         || message.type === "workbench/open-screenshot"
         || message.type === "workbench/show"
         || message.type === "workbench/pick-image"
+        || message.type === "workbench/open-linked-image"
       ) {
         if (subscribers.size === 0) {
           pendingMessage = message;
@@ -77,7 +81,11 @@ export default defineContentScript({
 
 function ContentApp(props: {
   subscribe(
-    listener: (message: WorkbenchOpenMessage | { type: "workbench/pick-image" }) => void
+    listener: (
+      message: WorkbenchOpenMessage
+        | { type: "workbench/pick-image" }
+        | { type: "workbench/open-linked-image"; payload: { linkUrl: string } }
+    ) => void
   ): () => void;
 }) {
   const [visible, setVisible] = useState(true);
@@ -112,6 +120,15 @@ function ContentApp(props: {
   }, []);
 
   useEffect(() => props.subscribe((message) => {
+    if (message.type === "workbench/open-linked-image") {
+      const image = findLinkedPageImage(message.payload.linkUrl);
+      if (image) {
+        openPageImage(image);
+      } else {
+        startImagePicker();
+      }
+      return;
+    }
     if (message.type === "workbench/pick-image") {
       startImagePicker();
       return;
@@ -229,6 +246,20 @@ function ContentApp(props: {
     setHistoryOpen(false);
   };
 
+  const openPageImage = (image: HTMLImageElement) => {
+    const sourceUrl = image.currentSrc || image.src;
+    setSource({
+      sourceType: "image",
+      previewUrl: sourceUrl,
+      imageDataUrl: "",
+      sourceUrl,
+      pageUrl: location.href,
+      pageTitle: document.title
+    });
+    setRestored(null);
+    setVisible(true);
+  };
+
   const startImagePicker = () => {
     setVisible(false);
     let highlighted: HTMLImageElement | null = null;
@@ -295,18 +326,8 @@ function ContentApp(props: {
       }
       event.preventDefault();
       event.stopImmediatePropagation();
-      const sourceUrl = image.currentSrc || image.src;
       cleanupPicker();
-      setSource({
-        sourceType: "image",
-        previewUrl: sourceUrl,
-        imageDataUrl: "",
-        sourceUrl,
-        pageUrl: location.href,
-        pageTitle: document.title
-      });
-      setRestored(null);
-      setVisible(true);
+      openPageImage(image);
     };
 
     const handleKeyDown = (event: KeyboardEvent) => {

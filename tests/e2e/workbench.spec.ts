@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import {
   configureFixtureApi,
   injectAndOpenImage,
+  injectAndOpenLinkedImage,
   injectAndOpenScreenshot,
   injectAndShowWorkbench
 } from "./helpers";
@@ -80,6 +81,20 @@ test("selects an image from the current page", async ({ page, serviceWorker }) =
   await image.hover();
   await image.click();
 
+  const shell = page.getByTestId("workbench-shell");
+  await expect(shell.getByText("视觉分析扩展测试页", { exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "开始分析" })).toBeEnabled();
+});
+
+test("opens a linked thumbnail directly from its context-menu URL", async ({
+  page,
+  serviceWorker
+}) => {
+  await page.goto("http://127.0.0.1:43118/");
+  await injectAndOpenLinkedImage(page, serviceWorker);
+
+  await expect(page.getByText("点击一张图片进行分析 · Esc 取消", { exact: true }))
+    .toHaveCount(0);
   const shell = page.getByTestId("workbench-shell");
   await expect(shell.getByText("视觉分析扩展测试页", { exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "开始分析" })).toBeEnabled();
