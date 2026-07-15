@@ -15,3 +15,17 @@ export interface AnalyzeSelection {
   prompt: PromptPreset;
   outputFormat: OutputFormat;
 }
+
+export type AnalysisTaskStatus = "running" | "completed" | "failed";
+
+export interface AnalysisTask {
+  id: string;
+  createdAt: number;
+  selection: AnalyzeSelection;
+  status: AnalysisTaskStatus;
+  result: string;
+  error: string;
+  durationMs: number | null;
+  providerName: string;
+  modelName: string;
+}

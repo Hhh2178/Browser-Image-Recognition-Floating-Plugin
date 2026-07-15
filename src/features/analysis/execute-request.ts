@@ -1,10 +1,16 @@
 import { buildChatPayload } from "./build-request";
 import { normalizeEndpoint } from "./endpoint";
 import { AnalysisRequestError, parseAnalysisResponse } from "./parse-response";
-import type { Settings } from "../settings/settings-schema";
+import type { EndpointMode, ImageTransport } from "../settings/settings-schema";
 
 export interface ExecuteRequestInput {
-  settings: Settings;
+  target: {
+    apiUrl: string;
+    apiKey: string;
+    endpointMode: EndpointMode;
+    imageTransport: ImageTransport;
+    model: string;
+  };
   prompt: string;
   imageDataUrl: string;
   sourceUrl?: string;
@@ -19,20 +25,20 @@ export async function executeAnalysisRequest(
   const timer = setTimeout(() => controller.abort("timeout"), timeoutMs);
   try {
     const response = await (options.fetchImpl ?? fetch)(
-      normalizeEndpoint(input.settings.apiUrl, input.settings.endpointMode),
+      normalizeEndpoint(input.target.apiUrl, input.target.endpointMode),
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${input.settings.apiKey}`
+          Authorization: `Bearer ${input.target.apiKey}`
         },
         signal: controller.signal,
         body: JSON.stringify(buildChatPayload({
-          model: input.settings.model,
+          model: input.target.model,
           prompt: input.prompt,
           imageDataUrl: input.imageDataUrl,
           ...(input.sourceUrl ? { sourceUrl: input.sourceUrl } : {}),
-          imageTransport: input.settings.imageTransport
+          imageTransport: input.target.imageTransport
         }))
       }
     );

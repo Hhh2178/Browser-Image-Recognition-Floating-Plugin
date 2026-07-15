@@ -13,6 +13,10 @@ import { listPrompts } from "../../src/features/prompts/prompt-repository";
 import { renderPrompt, type PromptPreset } from "../../src/features/prompts/prompt-schema";
 import { loadSettings } from "../../src/features/settings/settings-repository";
 import type { Settings } from "../../src/features/settings/settings-schema";
+import {
+  getActiveModel,
+  getActiveProvider
+} from "../../src/features/settings/settings-schema";
 import { Workbench } from "../../src/features/workbench/Workbench";
 import type {
   AnalyzeSelection,
@@ -21,6 +25,7 @@ import type {
 import workbenchCss from "./style.css?inline";
 
 const POSITION_KEY = "hhhFloatPosition";
+const SIZE_KEY = "hhhFloatSizeV3";
 
 export default defineContentScript({
   registration: "runtime",
@@ -91,6 +96,7 @@ function ContentApp(props: {
   const [settings, setSettings] = useState<Settings | null>(null);
   const [prompts, setPrompts] = useState<PromptPreset[]>([]);
   const [position, setPosition] = useState<{ x: number; y: number } | null>(null);
+  const [size, setSize] = useState<{ width: number; height: number } | null>(null);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [history, setHistory] = useState<HistoryRecord[]>([]);
   const [restored, setRestored] = useState<HistoryRecord | null>(null);
@@ -99,7 +105,7 @@ function ContentApp(props: {
     void Promise.all([
       loadSettings(),
       listPrompts(),
-      chrome.storage.local.get([POSITION_KEY])
+      chrome.storage.local.get([POSITION_KEY, SIZE_KEY])
     ]).then(([nextSettings, nextPrompts, stored]) => {
       setSettings(nextSettings);
       setPrompts(nextPrompts);
@@ -111,6 +117,15 @@ function ContentApp(props: {
         && typeof (storedPosition as { y?: unknown }).y === "number"
       ) {
         setPosition(storedPosition as { x: number; y: number });
+      }
+      const storedSize: unknown = stored[SIZE_KEY];
+      if (
+        storedSize
+        && typeof storedSize === "object"
+        && typeof (storedSize as { width?: unknown }).width === "number"
+        && typeof (storedSize as { height?: unknown }).height === "number"
+      ) {
+        setSize(storedSize as { width: number; height: number });
       }
     });
   }, []);
@@ -156,8 +171,9 @@ function ContentApp(props: {
     if (!settings) {
       throw new Error("设置仍在加载，请稍后重试。");
     }
+    const activeProvider = getActiveProvider(settings);
     if (
-      settings.imageTransport === "data_url"
+      activeProvider.imageTransport === "data_url"
       && !selection.source.imageDataUrl
     ) {
       throw new Error("当前网页图片无法转换为 Data URL，请将图片传输方式改为自动或源地址。");
@@ -175,7 +191,7 @@ function ContentApp(props: {
         imageDataUrl: selection.source.imageDataUrl,
         prompt,
         outputFormat: selection.outputFormat,
-        model: settings.model,
+        preferredModelId: settings.activeModelId,
         pageUrl: selection.source.pageUrl,
         pageTitle: selection.source.pageTitle
       }
@@ -190,7 +206,7 @@ function ContentApp(props: {
       sourceType: selection.source.sourceType,
       thumbnail: selection.source.previewUrl,
       templateId: selection.prompt.id,
-      model: settings.model,
+      model: response.modelName,
       outputFormat: selection.outputFormat,
       result: response.content,
       pageUrl: selection.source.pageUrl
@@ -199,7 +215,12 @@ function ContentApp(props: {
       type: "history/add",
       payload: record
     } satisfies RuntimeMessage);
-    return { content: response.content, durationMs: response.durationMs };
+    return {
+      content: response.content,
+      durationMs: response.durationMs,
+      providerName: response.providerName,
+      modelName: response.modelName
+    };
   };
 
   const openHistory = async () => {
@@ -347,20 +368,17 @@ function ContentApp(props: {
     window.addEventListener("keydown", handleKeyDown, true);
   };
 
-  if (!visible) {
-    return null;
-  }
-
   return (
     <>
       <Workbench
-        key={restored?.id ?? "active"}
         {...(restored ? { initialResult: restored.result } : {})}
+        hidden={!visible}
         source={source}
         {...(prompts.length ? { prompts } : {})}
-        modelName={settings?.model ?? ""}
+        modelName={settings ? getActiveModel(settings).name : ""}
         theme={settings?.theme ?? "system"}
         {...(position ? { initialPosition: position } : {})}
+        {...(size ? { initialSize: size } : {})}
         onAnalyze={analyze}
         onPickImage={startImagePicker}
         onOpenHistory={() => void openHistory()}
@@ -370,8 +388,12 @@ function ContentApp(props: {
           setPosition(nextPosition);
           void chrome.storage.local.set({ [POSITION_KEY]: nextPosition });
         }}
+        saveSize={(nextSize) => {
+          setSize(nextSize);
+          void chrome.storage.local.set({ [SIZE_KEY]: nextSize });
+        }}
       />
-      {historyOpen ? (
+      {visible && historyOpen ? (
         <HistoryDrawer
           records={history}
           onRestore={restoreHistory}

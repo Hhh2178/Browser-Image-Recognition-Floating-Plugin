@@ -1,11 +1,11 @@
-import type { Settings } from "../settings/settings-schema";
+import type { ImageTransport } from "../settings/settings-schema";
 
 interface RequestInput {
   model: string;
   prompt: string;
   imageDataUrl: string;
   sourceUrl?: string;
-  imageTransport: Settings["imageTransport"];
+  imageTransport: ImageTransport;
 }
 
 interface ContentPart {

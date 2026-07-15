@@ -17,6 +17,13 @@ export function requestEndpointPermission(
   return request({ origins: [endpointOriginPattern(value)] });
 }
 
+export function requestEndpointPermissions(
+  values: string[],
+  request: PermissionRequest = chrome.permissions.request
+): Promise<boolean> {
+  return request({ origins: [...new Set(values.map(endpointOriginPattern))] });
+}
+
 export async function setHoverPermission(enabled: boolean): Promise<boolean> {
   if (enabled) {
     const granted = await chrome.permissions.request({ origins: HOVER_ORIGINS });

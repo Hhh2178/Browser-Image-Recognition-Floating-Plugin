@@ -39,7 +39,15 @@ export type RuntimeMessage =
   | { type: "history/clear" };
 
 export type AnalysisResponse =
-  | { ok: true; content: string; durationMs: number }
+  | {
+      ok: true;
+      content: string;
+      durationMs: number;
+      providerId: string;
+      providerName: string;
+      modelId: string;
+      modelName: string;
+    }
   | {
       ok: false;
       error: {

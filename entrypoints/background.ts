@@ -8,6 +8,10 @@ import { redactDiagnostic } from "../src/features/analysis/diagnostics";
 import { executeAnalysisRequest } from "../src/features/analysis/execute-request";
 import { AnalysisRequestError } from "../src/features/analysis/parse-response";
 import { loadSettings } from "../src/features/settings/settings-repository";
+import {
+  ModelRoutingError,
+  reserveAnalysisTarget
+} from "../src/features/settings/model-routing";
 import { historyRepository } from "../src/features/history/history-repository";
 import {
   CONTEXT_MENU_DEFINITIONS,
@@ -170,11 +174,15 @@ async function runAnalysis(
   const startedAt = performance.now();
   try {
     const settings = await loadSettings();
-    if (!settings.apiKey) {
-      throw new AnalysisRequestError("CONFIG_MISSING", "请先配置 API Key", false);
-    }
+    const target = await reserveAnalysisTarget(settings, payload.preferredModelId);
     const content = await executeAnalysisRequest({
-      settings,
+      target: {
+        apiUrl: target.provider.apiUrl,
+        apiKey: target.provider.apiKey,
+        endpointMode: target.provider.endpointMode,
+        imageTransport: target.provider.imageTransport,
+        model: target.model.model
+      },
       prompt: payload.prompt,
       imageDataUrl: payload.imageDataUrl,
       ...(payload.sourceUrl ? { sourceUrl: payload.sourceUrl } : {})
@@ -182,10 +190,16 @@ async function runAnalysis(
     return {
       ok: true,
       content,
-      durationMs: Math.round(performance.now() - startedAt)
+      durationMs: Math.round(performance.now() - startedAt),
+      providerId: target.provider.id,
+      providerName: target.provider.name,
+      modelId: target.model.id,
+      modelName: target.model.name
     };
   } catch (error) {
-    const normalized = error instanceof AnalysisRequestError
+    const normalized = error instanceof ModelRoutingError
+      ? new AnalysisRequestError(error.code, error.message, false)
+      : error instanceof AnalysisRequestError
       ? error
       : new AnalysisRequestError(
           "RUNTIME_ERROR",
@@ -200,7 +214,7 @@ async function runAnalysis(
         retryable: normalized.retryable,
         diagnostic: redactDiagnostic({
           code: normalized.code,
-          model: payload.model,
+          model: payload.preferredModelId ?? "auto",
           durationMs: Math.round(performance.now() - startedAt),
           sourceType: payload.sourceType,
           pageUrl: payload.pageUrl

@@ -7,7 +7,7 @@ export interface AnalysisInput {
   imageDataUrl: string;
   prompt: string;
   outputFormat: OutputFormat;
-  model: string;
+  preferredModelId?: string;
   pageUrl: string;
   pageTitle: string;
 }

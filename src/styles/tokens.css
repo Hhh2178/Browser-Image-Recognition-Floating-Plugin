@@ -1,28 +1,55 @@
 :host {
   all: initial;
-  --hhh-surface: rgb(18 23 31 / 82%);
-  --hhh-surface-subtle: rgb(25 31 41 / 76%);
-  --hhh-surface-muted: rgb(43 51 63 / 64%);
-  --hhh-text: #edf3f8;
-  --hhh-text-muted: #9ca9b8;
-  --hhh-border: rgb(255 255 255 / 10%);
-  --hhh-border-strong: rgb(255 255 255 / 18%);
-  --hhh-accent: #73d1ee;
-  --hhh-accent-hover: #93dff5;
+  --hhh-surface: #111b20;
+  --hhh-surface-subtle: #0d151a;
+  --hhh-surface-muted: #18252b;
+  --hhh-text: #e9f2f4;
+  --hhh-text-muted: #91a4aa;
+  --hhh-border: rgb(97 224 220 / 18%);
+  --hhh-border-strong: rgb(97 224 220 / 36%);
+  --hhh-accent: #61e0dc;
+  --hhh-accent-hover: #82ebe7;
   --hhh-success: #65d58b;
   --hhh-danger: #ff8f96;
-  --hhh-warning-bg: rgb(115 209 238 / 10%);
-  --hhh-radius-sm: 10px;
-  --hhh-radius-md: 18px;
+  --hhh-warning-bg: rgb(97 224 220 / 8%);
+  --hhh-radius-sm: 6px;
+  --hhh-radius-md: 8px;
   color: var(--hhh-text);
   color-scheme: dark;
-  font-family: "Segoe UI Variable", "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
-  font-size: 14px;
+  font-family: "Segoe UI Variable Text", "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 13px;
   letter-spacing: 0;
 }
 
 *, *::before, *::after {
   box-sizing: border-box;
+  scrollbar-color: rgb(97 224 220 / 42%) #071015;
+  scrollbar-width: thin;
+}
+
+*::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+*::-webkit-scrollbar-track {
+  background: #071015;
+}
+
+*::-webkit-scrollbar-thumb {
+  border: 2px solid #071015;
+  border-radius: 6px;
+  background: rgb(97 224 220 / 44%);
+  background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgb(97 224 220 / 68%);
+  background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-corner {
+  background: #071015;
 }
 
 button, input, select, textarea {

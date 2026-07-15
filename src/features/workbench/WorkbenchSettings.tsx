@@ -1,8 +1,5 @@
 import {
   CheckCircle2,
-  Eye,
-  EyeOff,
-  PlugZap,
   Save
 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -15,9 +12,10 @@ import {
 import { PromptManager } from "../prompts/PromptManager";
 import type { PromptPreset } from "../prompts/prompt-schema";
 import {
-  requestEndpointPermission,
+  requestEndpointPermissions,
   setHoverPermission
 } from "../settings/permissions";
+import { ProviderManager } from "../settings/ProviderManager";
 import {
   loadSettings,
   saveSettings
@@ -39,7 +37,6 @@ export function WorkbenchSettings(props: {
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
   const [prompts, setPrompts] = useState<PromptPreset[]>([]);
   const [notice, setNotice] = useState("");
-  const [showKey, setShowKey] = useState(false);
 
   useEffect(() => {
     void Promise.all([loadSettings(), listPrompts()]).then(([loaded, loadedPrompts]) => {
@@ -54,7 +51,9 @@ export function WorkbenchSettings(props: {
       setNotice(parsed.error.issues[0]?.message ?? "设置无效");
       return false;
     }
-    const endpointGranted = await requestEndpointPermission(parsed.data.apiUrl);
+    const endpointGranted = await requestEndpointPermissions(
+      parsed.data.providers.filter((provider) => provider.enabled).map((provider) => provider.apiUrl)
+    );
     if (!endpointGranted) {
       setNotice("未授予模型接口访问权限");
       return false;
@@ -78,7 +77,7 @@ export function WorkbenchSettings(props: {
         imageDataUrl: VISION_TEST_IMAGE,
         prompt: "如果能看到图片，请只回复：视觉连接正常",
         outputFormat: "zh",
-        model: settings.model,
+        preferredModelId: settings.activeModelId,
         pageUrl: location.href,
         pageTitle: "连接测试"
       }
@@ -112,21 +111,14 @@ export function WorkbenchSettings(props: {
         <div className="inline-settings-page">
           <header className="secondary-heading">
             <h2>模型与接口</h2>
-            <p>配置兼容 OpenAI Chat Completions 的视觉模型。</p>
+            <p>按服务商管理连接信息、模型列表和可选的每日使用额度。</p>
           </header>
-          <div className="inline-settings-form">
-            <label>API 地址<input value={settings.apiUrl} onChange={(event) => setSettings({ ...settings, apiUrl: event.target.value })} /></label>
-            <div className="settings-grid">
-              <label>Endpoint 模式<select value={settings.endpointMode} onChange={(event) => setSettings({ ...settings, endpointMode: event.target.value as Settings["endpointMode"] })}><option value="base_url">Base URL</option><option value="full_endpoint">完整 Endpoint</option></select></label>
-              <label>模型名称<input value={settings.model} onChange={(event) => setSettings({ ...settings, model: event.target.value })} /></label>
-            </div>
-            <label>图片传输<select value={settings.imageTransport} onChange={(event) => setSettings({ ...settings, imageTransport: event.target.value as Settings["imageTransport"] })}><option value="auto">自动</option><option value="data_url">Data URL</option><option value="source_url">源地址</option><option value="text_only">仅文本</option></select></label>
-            <label className="inline-key-field">API Key<div><input type={showKey ? "text" : "password"} value={settings.apiKey} onChange={(event) => setSettings({ ...settings, apiKey: event.target.value })} /><button type="button" aria-label={showKey ? "隐藏 API Key" : "显示 API Key"} onClick={() => setShowKey((value) => !value)}>{showKey ? <EyeOff size={16} /> : <Eye size={16} />}</button></div></label>
-          </div>
-          <div className="inline-settings-actions">
-            <button type="button" onClick={() => void runConnectionTest()}><PlugZap size={15} />测试连接</button>
-            <button type="button" className="accent-button" onClick={() => void persistSettings()}><Save size={15} />保存设置</button>
-          </div>
+          <ProviderManager
+            settings={settings}
+            onChange={setSettings}
+            onSave={persistSettings}
+            onTest={runConnectionTest}
+          />
         </div>
       ) : null}
 

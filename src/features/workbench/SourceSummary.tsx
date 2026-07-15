@@ -1,4 +1,4 @@
-import { Image as ImageIcon, MousePointer2, MonitorUp } from "lucide-react";
+import { Image as ImageIcon, ImagePlus, MousePointer2, MonitorUp } from "lucide-react";
 import type { WorkbenchSource } from "./workbench-types";
 
 export function SourceSummary(props: {
@@ -37,6 +37,11 @@ export function SourceSummary(props: {
         <strong title={source.pageTitle}>{source.pageTitle || "未命名页面"}</strong>
         <span title={source.pageUrl}>{new URL(source.pageUrl).hostname}</span>
       </div>
+      {props.onPickImage ? (
+        <button type="button" className="source-pick-again" aria-label="选择另一张图片" title="选择另一张图片" onClick={props.onPickImage}>
+          <ImagePlus size={16} />
+        </button>
+      ) : null}
     </section>
   );
 }

@@ -1,4 +1,4 @@
-import { CheckCircle2, Download, Eye, EyeOff, PlugZap, Save } from "lucide-react";
+import { CheckCircle2, Download } from "lucide-react";
 import { useEffect, useState } from "react";
 import { importPromptBundle } from "../../src/features/prompts/prompt-import";
 import {
@@ -9,9 +9,10 @@ import {
 import { PromptManager } from "../../src/features/prompts/PromptManager";
 import type { PromptPreset } from "../../src/features/prompts/prompt-schema";
 import {
-  requestEndpointPermission,
+  requestEndpointPermissions,
   setHoverPermission
 } from "../../src/features/settings/permissions";
+import { ProviderManager } from "../../src/features/settings/ProviderManager";
 import {
   loadSettings,
   saveSettings
@@ -31,7 +32,6 @@ export function OptionsApp() {
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
   const [prompts, setPrompts] = useState<PromptPreset[]>([]);
   const [notice, setNotice] = useState("");
-  const [showKey, setShowKey] = useState(false);
 
   useEffect(() => {
     void Promise.all([loadSettings(), listPrompts()]).then(([loaded, loadedPrompts]) => {
@@ -50,7 +50,9 @@ export function OptionsApp() {
       setNotice(parsed.error.issues[0]?.message ?? "设置无效");
       return false;
     }
-    const permission = await requestEndpointPermission(parsed.data.apiUrl);
+    const permission = await requestEndpointPermissions(
+      parsed.data.providers.filter((provider) => provider.enabled).map((provider) => provider.apiUrl)
+    );
     if (!permission) {
       setNotice("未授予模型接口访问权限");
       return false;
@@ -75,7 +77,7 @@ export function OptionsApp() {
             ? "如果能看到图片，请只回复：视觉连接正常"
             : "请只回复：文本连接正常",
           outputFormat: "zh",
-          model: settings.model,
+          preferredModelId: settings.activeModelId,
           pageUrl: location.href,
           pageTitle: "连接测试"
         }
@@ -123,10 +125,15 @@ export function OptionsApp() {
     }
     const record = parsed as Record<string, unknown>;
     if (record.settings && typeof record.settings === "object") {
-      const nextSettings = settingsSchema.safeParse({
-        ...record.settings as Record<string, unknown>,
-        apiKey: settings.apiKey
-      });
+      const imported = record.settings as Record<string, unknown>;
+      const providers = Array.isArray(imported.providers)
+        ? imported.providers.map((value) => {
+          const provider = value as Record<string, unknown>;
+          const local = settings.providers.find((item) => item.id === provider.id);
+          return { ...provider, apiKey: local?.apiKey ?? "" };
+        })
+        : imported.providers;
+      const nextSettings = settingsSchema.safeParse({ ...imported, providers });
       if (!nextSettings.success) {
         setNotice(nextSettings.error.issues[0]?.message ?? "团队设置无效");
         return;
@@ -167,19 +174,13 @@ export function OptionsApp() {
       <section className="options-content">
         {tab === "models" ? (
           <div className="settings-section">
-            <header><h1>模型与接口</h1><p>配置 OpenAI Chat Completions 兼容的视觉模型。</p></header>
-            <div className="settings-form">
-              <label>API 地址<input value={settings.apiUrl} onChange={(event) => setSettings({ ...settings, apiUrl: event.target.value })} /></label>
-              <label>Endpoint 模式<select value={settings.endpointMode} onChange={(event) => setSettings({ ...settings, endpointMode: event.target.value as Settings["endpointMode"] })}><option value="base_url">Base URL</option><option value="full_endpoint">完整 Endpoint</option></select></label>
-              <label>模型名称<input value={settings.model} onChange={(event) => setSettings({ ...settings, model: event.target.value })} /></label>
-              <label>图片传输<select value={settings.imageTransport} onChange={(event) => setSettings({ ...settings, imageTransport: event.target.value as Settings["imageTransport"] })}><option value="auto">自动</option><option value="data_url">Data URL</option><option value="source_url">源地址</option><option value="text_only">仅文本</option></select></label>
-              <label className="key-field">API Key<div><input type={showKey ? "text" : "password"} value={settings.apiKey} onChange={(event) => setSettings({ ...settings, apiKey: event.target.value })} /><button type="button" aria-label={showKey ? "隐藏 API Key" : "显示 API Key"} onClick={() => setShowKey((value) => !value)}>{showKey ? <EyeOff size={17} /> : <Eye size={17} />}</button></div></label>
-            </div>
-            <div className="section-actions">
-              <button className="secondary-button" onClick={() => void runConnectionTest(false)}><PlugZap size={16} />文本测试</button>
-              <button className="secondary-button" onClick={() => void runConnectionTest(true)}><PlugZap size={16} />视觉测试</button>
-              <button className="primary-button" onClick={() => void persistSettings()}><Save size={16} />保存设置</button>
-            </div>
+            <header><h1>模型与接口</h1><p>按服务商管理连接信息、模型列表和可选的每日使用额度。</p></header>
+            <ProviderManager
+              settings={settings}
+              onChange={setSettings}
+              onSave={persistSettings}
+              onTest={() => runConnectionTest(true)}
+            />
           </div>
         ) : null}
         {tab === "prompts" ? (

@@ -1,8 +1,8 @@
-import type { Settings } from "../settings/settings-schema";
+import type { EndpointMode } from "../settings/settings-schema";
 
 export function normalizeEndpoint(
   value: string,
-  mode: Settings["endpointMode"]
+  mode: EndpointMode
 ): string {
   const clean = value.trim().replace(/\/+$/, "");
   if (mode === "full_endpoint" || /\/chat\/completions$/i.test(clean)) {

@@ -126,11 +126,68 @@ test("opens settings and prompt management inside the floating window", async ({
     fullPage: false
   });
 
+  await shell.getByRole("button", { name: "新建服务商" }).click();
+  await expect(shell.getByRole("heading", { name: "新服务商" })).toBeVisible();
+  await shell.getByRole("button", { name: "添加模型" }).click();
+  const dailyLimitToggles = shell.getByRole("checkbox", { name: "每日使用上限" });
+  await expect(dailyLimitToggles).toHaveCount(2);
+  await dailyLimitToggles.first().check();
+  await shell.getByRole("spinbutton").fill("25");
+  await expect(shell.getByText("今日 0/25")).toBeVisible();
+  await page.screenshot({
+    path: "output/playwright/workbench-provider-models.png",
+    fullPage: false
+  });
+
   await shell.getByRole("button", { name: "提示词" }).click();
   await expect(shell.getByText("内置模板", { exact: true })).toBeVisible();
   await expect(shell.getByText("通用图片反推", { exact: true }).first()).toBeVisible();
   await page.screenshot({
     path: "output/playwright/workbench-inline-prompts.png",
+    fullPage: false
+  });
+});
+
+test("resizes within desktop bounds and reflows on narrow screens", async ({
+  page,
+  serviceWorker
+}) => {
+  await page.goto("http://127.0.0.1:43118/");
+  await injectAndShowWorkbench(page, serviceWorker);
+  const shell = page.getByTestId("workbench-shell");
+  const initial = await shell.boundingBox();
+  if (!initial) {
+    throw new Error("Workbench is not visible");
+  }
+
+  await page.mouse.move(initial.x + initial.width - 2, initial.y + initial.height - 2);
+  await page.mouse.down();
+  await page.mouse.move(initial.x + initial.width + 120, initial.y + initial.height + 70, {
+    steps: 8
+  });
+  await page.mouse.up();
+
+  const resized = await shell.boundingBox();
+  if (!resized) {
+    throw new Error("Resized workbench is not visible");
+  }
+  expect(resized.width).toBeGreaterThan(initial.width + 50);
+  expect(resized.width).toBeLessThanOrEqual(860);
+  expect(resized.height).toBeGreaterThanOrEqual(420);
+  expect(resized.y + resized.height).toBeLessThanOrEqual(900);
+
+  await page.setViewportSize({ width: 520, height: 720 });
+  await expect(shell).toHaveCSS("resize", "none");
+  const narrow = await shell.boundingBox();
+  if (!narrow) {
+    throw new Error("Narrow workbench is not visible");
+  }
+  expect(narrow.x).toBeGreaterThanOrEqual(0);
+  expect(narrow.x + narrow.width).toBeLessThanOrEqual(520);
+  expect(narrow.y + narrow.height).toBeLessThanOrEqual(720);
+  await fs.mkdir("output/playwright", { recursive: true });
+  await page.screenshot({
+    path: "output/playwright/workbench-resize-narrow.png",
     fullPage: false
   });
 });

@@ -1,4 +1,5 @@
 @import "../../src/styles/tokens.css";
+@import "../../src/styles/provider-manager.css";
 
 :root {
   font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;

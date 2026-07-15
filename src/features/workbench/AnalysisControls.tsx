@@ -13,7 +13,7 @@ export function AnalysisControls(props: {
   selectedPromptId: string;
   outputFormat: OutputFormat;
   modelName: string;
-  running: boolean;
+  runningCount: number;
   disabled: boolean;
   onPromptChange: (id: string) => void;
   onFormatChange: (format: OutputFormat) => void;
@@ -66,11 +66,11 @@ export function AnalysisControls(props: {
       <button
         type="button"
         className="primary-action"
-        disabled={props.disabled || props.running}
+        disabled={props.disabled}
         onClick={props.onAnalyze}
       >
         <Play size={16} fill="currentColor" />
-        {props.running ? "正在分析..." : "开始分析"}
+        {props.runningCount > 0 ? "加入分析队列" : "开始分析"}
       </button>
     </section>
   );

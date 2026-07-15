@@ -4,11 +4,25 @@ export async function configureFixtureApi(worker: Worker): Promise<void> {
   await worker.evaluate(async () => {
     await chrome.storage.local.set({
       hhhSettings: {
-        apiUrl: "http://127.0.0.1:43118/v1",
-        apiKey: "fixture-key",
-        model: "fixture-vision",
-        endpointMode: "base_url",
-        imageTransport: "source_url",
+        schemaVersion: 2,
+        providers: [{
+          id: "provider-fixture",
+          name: "Fixture Provider",
+          apiUrl: "http://127.0.0.1:43118/v1",
+          apiKey: "fixture-key",
+          endpointMode: "base_url",
+          imageTransport: "source_url",
+          enabled: true,
+          models: [{
+            id: "model-fixture",
+            name: "fixture-vision",
+            model: "fixture-vision",
+            enabled: true,
+            dailyLimit: null
+          }]
+        }],
+        activeProviderId: "provider-fixture",
+        activeModelId: "model-fixture",
         hoverEnabled: false,
         theme: "light"
       }
