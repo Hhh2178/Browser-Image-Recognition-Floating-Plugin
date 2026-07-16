@@ -77,7 +77,6 @@ npm run check
 npm run zip
 ```
 
-## License status
+## License
 
-The repository does not currently declare an open-source license. Public source availability does not automatically grant permission to copy, modify, or redistribute the project. A license should be selected before third-party distribution is encouraged.
-
+This project is available under the [MIT License](LICENSE).
