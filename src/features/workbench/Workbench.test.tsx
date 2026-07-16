@@ -1,5 +1,6 @@
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, expect, it, vi } from "vitest";
+import { settingsSchema } from "../settings/settings-schema";
 import { Workbench } from "./Workbench";
 
 beforeEach(() => {
@@ -256,4 +257,45 @@ it("configures an optional daily model limit in inline settings", async () => {
   expect(screen.getByRole("spinbutton")).toHaveValue(100);
   fireEvent.change(screen.getByRole("spinbutton"), { target: { value: "25" } });
   expect(screen.getByRole("spinbutton")).toHaveValue(25);
+});
+
+it("saves valid provider settings even when endpoint permission is denied", async () => {
+  const storageSet = vi.fn<(value: Record<string, unknown>) => Promise<void>>()
+    .mockResolvedValue(undefined);
+  chrome.storage.local.set = storageSet;
+  chrome.permissions.request = () => Promise.resolve(false);
+  render(
+    <Workbench
+      source={null}
+      onAnalyze={vi.fn()}
+      onOpenHistory={vi.fn()}
+      onClose={vi.fn()}
+    />
+  );
+
+  fireEvent.click(screen.getByRole("button", { name: "打开设置" }));
+  const providerName = await screen.findByRole("textbox", { name: "服务商名称" });
+  fireEvent.change(providerName, { target: { value: "Saved Provider" } });
+  fireEvent.click(screen.getByRole("button", { name: "保存全部配置" }));
+
+  expect(await screen.findByText("设置已保存，但未授予模型接口访问权限")).toBeVisible();
+  const settingsCall = storageSet.mock.calls.find(([value]) => "hhhSettings" in value);
+  const saved = settingsSchema.parse(settingsCall?.[0].hhhSettings);
+  expect(saved.providers.some((provider) => provider.name === "Saved Provider")).toBe(true);
+});
+
+it("switches to a supported output format for JSON-only migrated presets", () => {
+  render(
+    <Workbench
+      source={null}
+      onAnalyze={vi.fn()}
+      onOpenHistory={vi.fn()}
+      onClose={vi.fn()}
+    />
+  );
+
+  fireEvent.change(screen.getByRole("combobox", { name: "提示词模板" }), {
+    target: { value: "builtin:legacy-art-blueprint" }
+  });
+  expect(screen.getByRole("button", { name: "JSON" })).toHaveClass("active");
 });

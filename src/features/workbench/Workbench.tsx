@@ -285,6 +285,14 @@ export function Workbench(props: {
     }
   };
 
+  const selectPrompt = (id: string) => {
+    setPromptId(id);
+    const nextPrompt = prompts.find((item) => item.id === id);
+    if (nextPrompt && !nextPrompt.supportedFormats.includes(format)) {
+      setFormat(nextPrompt.supportedFormats[0]!);
+    }
+  };
+
   return (
     <aside
       ref={shellRef}
@@ -350,7 +358,7 @@ export function Workbench(props: {
                 modelName={props.modelName ?? ""}
                 runningCount={runningCount}
                 disabled={!props.source}
-                onPromptChange={setPromptId}
+                onPromptChange={selectPrompt}
                 onFormatChange={setFormat}
                 onManagePrompts={() => setView("prompts")}
                 onAnalyze={analyze}

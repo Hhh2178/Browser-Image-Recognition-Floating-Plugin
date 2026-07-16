@@ -44,9 +44,10 @@ export async function executeAnalysisRequest(
     );
     const rawText = await response.text();
     if (!response.ok) {
+      const detail = extractApiErrorMessage(rawText);
       throw new AnalysisRequestError(
         "HTTP_ERROR",
-        `接口返回 ${response.status}`,
+        `接口返回 ${response.status}${detail ? `：${detail}` : ""}`,
         response.status >= 500 || response.status === 429,
         response.status
       );
@@ -73,4 +74,32 @@ export async function executeAnalysisRequest(
   } finally {
     clearTimeout(timer);
   }
+}
+
+export function extractApiErrorMessage(rawText: string): string {
+  const trimmed = rawText.trim();
+  if (!trimmed) {
+    return "";
+  }
+  try {
+    const record = JSON.parse(trimmed) as unknown;
+    const root = asRecord(record);
+    const error = asRecord(root.error);
+    for (const value of [error.message, error.detail, root.message, root.detail]) {
+      if (typeof value === "string" && value.trim()) {
+        return limitErrorDetail(value);
+      }
+    }
+  } catch {
+    // Plain-text API errors are handled below.
+  }
+  return limitErrorDetail(trimmed.replace(/<[^>]+>/g, " ").replace(/\s+/g, " "));
+}
+
+function limitErrorDetail(value: string): string {
+  return value.trim().slice(0, 300);
+}
+
+function asRecord(value: unknown): Record<string, unknown> {
+  return value && typeof value === "object" ? value as Record<string, unknown> : {};
 }

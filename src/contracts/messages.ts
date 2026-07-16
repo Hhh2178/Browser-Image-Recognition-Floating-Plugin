@@ -27,6 +27,8 @@ export type RuntimeMessage =
   | { type: "workbench/pick-image" }
   | { type: "workbench/open-linked-image"; payload: { linkUrl: string } }
   | { type: "workbench/ping" }
+  | { type: "permissions/request-endpoints"; payload: { origins: string[] } }
+  | { type: "permissions/set-hover"; payload: { enabled: boolean } }
   | { type: "workbench/open-from-hover"; payload: {
       sourceUrl: string;
       pageUrl: string;
@@ -35,6 +37,7 @@ export type RuntimeMessage =
   | { type: "analysis/run"; payload: AnalysisInput }
   | { type: "history/add"; payload: HistoryRecord }
   | { type: "history/list" }
+  | { type: "history/export-pending" }
   | { type: "history/remove"; payload: { id: string } }
   | { type: "history/clear" };
 

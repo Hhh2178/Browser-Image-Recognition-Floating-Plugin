@@ -11,6 +11,7 @@ export interface HistoryRecord {
   outputFormat: OutputFormat;
   result: string;
   pageUrl: string;
+  exportedAt?: number;
 }
 
 export const historyDb = new Dexie("hhh-prompt-studio-next") as Dexie & {

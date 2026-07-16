@@ -1,7 +1,8 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { buildChatPayload } from "./build-request";
 import { redactDiagnostic } from "./diagnostics";
 import { normalizeEndpoint } from "./endpoint";
+import { executeAnalysisRequest, extractApiErrorMessage } from "./execute-request";
 import { parseAnalysisResponse } from "./parse-response";
 
 describe("analysis core", () => {
@@ -34,6 +35,40 @@ describe("analysis core", () => {
       choices: [{ message: { content: " result " } }]
     })).toBe("result");
     expect(parseAnalysisResponse({ output_text: "alternate" })).toBe("alternate");
+    expect(parseAnalysisResponse({
+      choices: [{ message: { content: null, reasoning_content: "vision result" } }]
+    })).toBe("vision result");
+    expect(parseAnalysisResponse({
+      choices: [{ message: { content: [{ type: "text", text: { value: "nested" } }] } }]
+    })).toBe("nested");
+  });
+
+  it("surfaces API error details without dumping an unbounded response", async () => {
+    expect(extractApiErrorMessage(JSON.stringify({
+      error: { message: "model does not support this image" }
+    }))).toBe("model does not support this image");
+
+    const fetchImpl = vi.fn(() => Promise.resolve({
+      ok: false,
+      status: 400,
+      text: () => Promise.resolve(JSON.stringify({
+        error: { message: "invalid image payload" }
+      }))
+    } as Response)) as unknown as typeof fetch;
+
+    await expect(executeAnalysisRequest({
+      target: {
+        apiUrl: "https://api.example.com/v1",
+        apiKey: "secret",
+        endpointMode: "base_url",
+        imageTransport: "data_url",
+        model: "vision-model"
+      },
+      prompt: "Analyze",
+      imageDataUrl: "data:image/jpeg;base64,abc"
+    }, {
+      fetchImpl
+    })).rejects.toThrow("接口返回 400：invalid image payload");
   });
 
   it("redacts secrets and image data", () => {

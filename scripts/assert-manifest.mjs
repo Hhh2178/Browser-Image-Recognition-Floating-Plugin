@@ -7,7 +7,7 @@ const manifest = JSON.parse(
 
 assert.deepEqual(
   [...manifest.permissions].sort(),
-  ["activeTab", "contextMenus", "scripting", "storage"].sort(),
+  ["activeTab", "contextMenus", "downloads", "scripting", "storage"].sort(),
   "Production permissions changed unexpectedly"
 );
 assert.ok(

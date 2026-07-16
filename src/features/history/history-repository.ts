@@ -19,6 +19,25 @@ export const historyRepository = {
     return historyDb.history.orderBy("createdAt").reverse().toArray();
   },
 
+  async listPendingExport(): Promise<HistoryRecord[]> {
+    const records = await historyDb.history.orderBy("createdAt").toArray();
+    return records.filter((record) => !record.exportedAt && record.result.trim());
+  },
+
+  async markExported(ids: string[], exportedAt: number): Promise<void> {
+    if (ids.length === 0) {
+      return;
+    }
+    await historyDb.transaction("rw", historyDb.history, async () => {
+      const records = (await historyDb.history.bulkGet(ids))
+        .filter((record): record is HistoryRecord => Boolean(record));
+      await historyDb.history.bulkPut(records.map((record) => ({
+        ...record,
+        exportedAt
+      })));
+    });
+  },
+
   remove(id: string): Promise<void> {
     return historyDb.history.delete(id);
   },

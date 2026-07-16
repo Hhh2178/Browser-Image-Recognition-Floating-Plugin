@@ -9,6 +9,7 @@ import { HistoryDrawer } from "../../src/features/history/HistoryDrawer";
 import type { HistoryRecord } from "../../src/features/history/history-db";
 import { findBestPageImage } from "../../src/features/media/page-image-target";
 import { findLinkedPageImage } from "../../src/features/media/linked-image-target";
+import { prepareSourceImage } from "../../src/features/media/prepare-source-image";
 import { listPrompts } from "../../src/features/prompts/prompt-repository";
 import { renderPrompt, type PromptPreset } from "../../src/features/prompts/prompt-schema";
 import { loadSettings } from "../../src/features/settings/settings-repository";
@@ -172,28 +173,29 @@ function ContentApp(props: {
       throw new Error("设置仍在加载，请稍后重试。");
     }
     const activeProvider = getActiveProvider(settings);
-    if (
-      activeProvider.imageTransport === "data_url"
-      && !selection.source.imageDataUrl
-    ) {
-      throw new Error("当前网页图片无法转换为 Data URL，请将图片传输方式改为自动或源地址。");
+    const preparedSource = await prepareSourceImage(
+      selection.source,
+      activeProvider.imageTransport
+    );
+    if (preparedSource !== selection.source) {
+      setSource(preparedSource);
     }
     const prompt = renderPrompt(selection.prompt.content, {
       outputFormat: selection.outputFormat,
-      sourceType: selection.source.sourceType,
-      pageTitle: selection.source.pageTitle
+      sourceType: preparedSource.sourceType,
+      pageTitle: preparedSource.pageTitle
     });
     const response: AnalysisResponse = await chrome.runtime.sendMessage({
       type: "analysis/run",
       payload: {
-        sourceType: selection.source.sourceType,
-        ...(selection.source.sourceUrl ? { sourceUrl: selection.source.sourceUrl } : {}),
-        imageDataUrl: selection.source.imageDataUrl,
+        sourceType: preparedSource.sourceType,
+        ...(preparedSource.sourceUrl ? { sourceUrl: preparedSource.sourceUrl } : {}),
+        imageDataUrl: preparedSource.imageDataUrl,
         prompt,
         outputFormat: selection.outputFormat,
         preferredModelId: settings.activeModelId,
-        pageUrl: selection.source.pageUrl,
-        pageTitle: selection.source.pageTitle
+        pageUrl: preparedSource.pageUrl,
+        pageTitle: preparedSource.pageTitle
       }
     } satisfies RuntimeMessage);
 
@@ -203,13 +205,13 @@ function ContentApp(props: {
     const record: HistoryRecord = {
       id: crypto.randomUUID(),
       createdAt: Date.now(),
-      sourceType: selection.source.sourceType,
-      thumbnail: selection.source.previewUrl,
+      sourceType: preparedSource.sourceType,
+      thumbnail: preparedSource.previewUrl,
       templateId: selection.prompt.id,
       model: response.modelName,
       outputFormat: selection.outputFormat,
       result: response.content,
-      pageUrl: selection.source.pageUrl
+      pageUrl: preparedSource.pageUrl
     };
     await chrome.runtime.sendMessage({
       type: "history/add",
@@ -248,6 +250,31 @@ function ContentApp(props: {
     }
     await chrome.runtime.sendMessage({ type: "history/clear" } satisfies RuntimeMessage);
     setHistory([]);
+  };
+
+  const exportPendingHistory = async (): Promise<{
+    count: number;
+    fileName: string;
+  }> => {
+    const response: {
+      ok: boolean;
+      count?: number;
+      fileName?: string;
+      message?: string;
+    } = await chrome.runtime.sendMessage({
+      type: "history/export-pending"
+    } satisfies RuntimeMessage);
+    if (!response.ok) {
+      throw new Error(response.message || "导出失败");
+    }
+    const records: HistoryRecord[] = await chrome.runtime.sendMessage({
+      type: "history/list"
+    } satisfies RuntimeMessage);
+    setHistory(records);
+    return {
+      count: response.count ?? 0,
+      fileName: response.fileName ?? ""
+    };
   };
 
   const restoreHistory = (record: HistoryRecord) => {
@@ -399,6 +426,7 @@ function ContentApp(props: {
           onRestore={restoreHistory}
           onDelete={(id) => void deleteHistory(id)}
           onClear={() => void clearHistory()}
+          onExport={exportPendingHistory}
           onClose={() => setHistoryOpen(false)}
         />
       ) : null}

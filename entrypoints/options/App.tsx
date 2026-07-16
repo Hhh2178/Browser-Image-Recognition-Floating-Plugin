@@ -50,15 +50,23 @@ export function OptionsApp() {
       setNotice(parsed.error.issues[0]?.message ?? "设置无效");
       return false;
     }
-    const permission = await requestEndpointPermissions(
-      parsed.data.providers.filter((provider) => provider.enabled).map((provider) => provider.apiUrl)
-    );
-    if (!permission) {
-      setNotice("未授予模型接口访问权限");
+    try {
+      await saveSettings(parsed.data);
+      setSettings(parsed.data);
+    } catch (error) {
+      setNotice(error instanceof Error ? `设置保存失败：${error.message}` : "设置保存失败");
       return false;
     }
-    await saveSettings(parsed.data);
-    setNotice("设置已保存");
+    try {
+      const permission = await requestEndpointPermissions(
+        parsed.data.providers.filter((provider) => provider.enabled).map((provider) => provider.apiUrl)
+      );
+      setNotice(permission
+        ? "设置已保存"
+        : "设置已保存，但未授予模型接口访问权限");
+    } catch {
+      setNotice("设置已保存，但接口权限申请失败");
+    }
     return true;
   };
 

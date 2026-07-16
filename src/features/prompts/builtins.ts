@@ -1,4 +1,5 @@
 import type { PromptPreset } from "./prompt-schema";
+import { LEGACY_BUILTIN_PROMPTS } from "./legacy-builtins";
 
 export const BUILTIN_PROMPTS: PromptPreset[] = [
   {
@@ -34,5 +35,6 @@ export const BUILTIN_PROMPTS: PromptPreset[] = [
     schemaVersion: 1,
     createdAt: 0,
     updatedAt: 0
-  }
+  },
+  ...LEGACY_BUILTIN_PROMPTS
 ];

@@ -31,4 +31,18 @@ describe("history repository", () => {
     expect(records.at(-1)?.id).toBe("1");
     expect(records[0]?.id).toBe("50");
   });
+
+  it("returns only unexported records and marks them after export", async () => {
+    await historyRepository.add(makeRecord(1));
+    await historyRepository.add({ ...makeRecord(2), exportedAt: 200 });
+    await historyRepository.add(makeRecord(3));
+
+    const pending = await historyRepository.listPendingExport();
+    expect(pending.map((record) => record.id)).toEqual(["1", "3"]);
+
+    await historyRepository.markExported(pending.map((record) => record.id), 300);
+    expect(await historyRepository.listPendingExport()).toEqual([]);
+    expect((await historyRepository.list()).map((record) => record.exportedAt))
+      .toEqual([300, 200, 300]);
+  });
 });

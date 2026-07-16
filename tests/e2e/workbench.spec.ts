@@ -113,6 +113,17 @@ test("opens settings and prompt management inside the floating window", async ({
   page,
   serviceWorker
 }) => {
+  await serviceWorker.evaluate(async () => {
+    await chrome.storage.local.remove(["hhhLegacyPromptMigrationV1", "hhhCustomPrompts"]);
+    await chrome.storage.local.set({
+      comflyPromptTemplatePresets: [{
+        id: "e2e-legacy-image",
+        task: "image_analysis",
+        name: "旧版迁移模板",
+        content: "从旧版迁移的图片分析提示词"
+      }]
+    });
+  });
   await page.goto("http://127.0.0.1:43118/");
   await injectAndShowWorkbench(page, serviceWorker);
   const pageUrl = page.url();
@@ -121,6 +132,23 @@ test("opens settings and prompt management inside the floating window", async ({
   const shell = page.getByTestId("workbench-shell");
   await expect(shell.getByRole("heading", { name: "模型与接口" })).toBeVisible();
   expect(page.url()).toBe(pageUrl);
+  const providerNameInput = shell.getByRole("textbox", { name: "服务商名称" });
+  await providerNameInput.fill("Saved Fixture Provider");
+  await shell.getByRole("button", { name: "保存全部配置" }).click();
+  await expect(shell.getByRole("status")).toContainText("设置已保存");
+  const savedSettings: unknown = await serviceWorker.evaluate(async () => {
+    const stored: Record<string, unknown> = await chrome.storage.local.get("hhhSettings");
+    return stored["hhhSettings"];
+  });
+  if (!savedSettings || typeof savedSettings !== "object") {
+    throw new Error("Saved settings are missing");
+  }
+  const providers = (savedSettings as { providers?: unknown }).providers;
+  if (!Array.isArray(providers) || !providers[0] || typeof providers[0] !== "object") {
+    throw new Error("Saved providers are missing");
+  }
+  const savedProviderName = (providers[0] as { name?: unknown }).name;
+  expect(savedProviderName).toBe("Saved Fixture Provider");
   await page.screenshot({
     path: "output/playwright/workbench-inline-settings.png",
     fullPage: false
@@ -142,6 +170,9 @@ test("opens settings and prompt management inside the floating window", async ({
   await shell.getByRole("button", { name: "提示词" }).click();
   await expect(shell.getByText("内置模板", { exact: true })).toBeVisible();
   await expect(shell.getByText("通用图片反推", { exact: true }).first()).toBeVisible();
+  await expect(shell.getByText("高保真图片反推", { exact: true }).first()).toBeVisible();
+  await expect(shell.getByText("全维度美术蓝图", { exact: true }).first()).toBeVisible();
+  await expect(shell.getByText("旧版迁移模板", { exact: true }).first()).toBeVisible();
   await page.screenshot({
     path: "output/playwright/workbench-inline-prompts.png",
     fullPage: false

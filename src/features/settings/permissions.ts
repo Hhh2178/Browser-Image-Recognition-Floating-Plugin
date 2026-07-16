@@ -12,19 +12,43 @@ export function endpointOriginPattern(value: string): string {
 
 export function requestEndpointPermission(
   value: string,
-  request: PermissionRequest = chrome.permissions.request
+  request?: PermissionRequest
 ): Promise<boolean> {
-  return request({ origins: [endpointOriginPattern(value)] });
+  return requestEndpointPermissions([value], request);
 }
 
-export function requestEndpointPermissions(
+export async function requestEndpointPermissions(
   values: string[],
-  request: PermissionRequest = chrome.permissions.request
+  request?: PermissionRequest
 ): Promise<boolean> {
-  return request({ origins: [...new Set(values.map(endpointOriginPattern))] });
+  const origins = [...new Set(values.map(endpointOriginPattern))];
+  if (origins.length === 0) {
+    return true;
+  }
+  if (request) {
+    return request({ origins });
+  }
+  if (typeof chrome.permissions?.request === "function") {
+    return chrome.permissions.request({ origins });
+  }
+  const response: { granted?: boolean } = await chrome.runtime.sendMessage({
+    type: "permissions/request-endpoints",
+    payload: { origins }
+  });
+  return response.granted === true;
 }
 
 export async function setHoverPermission(enabled: boolean): Promise<boolean> {
+  if (
+    typeof chrome.permissions?.request !== "function"
+    || typeof chrome.scripting?.getRegisteredContentScripts !== "function"
+  ) {
+    const response: { granted?: boolean } = await chrome.runtime.sendMessage({
+      type: "permissions/set-hover",
+      payload: { enabled }
+    });
+    return response.granted === true;
+  }
   if (enabled) {
     const granted = await chrome.permissions.request({ origins: HOVER_ORIGINS });
     if (!granted) {
