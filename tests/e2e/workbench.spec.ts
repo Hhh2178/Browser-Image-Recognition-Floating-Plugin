@@ -236,6 +236,13 @@ test("opens the extension options page", async ({ page, extensionId }) => {
     ]))
   });
   await expect(page.getByText("旧模板导入测试", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "使用帮助" }).click();
+  await expect(page.getByRole("heading", { name: "使用帮助" })).toBeVisible();
+  await expect(page.getByText("配置视觉模型", { exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: /查看隐私说明/ })).toHaveAttribute(
+    "href",
+    /PRIVACY\.md$/
+  );
   await fs.mkdir("output/playwright", { recursive: true });
   await page.screenshot({
     path: "output/playwright/options-prompts.png",
