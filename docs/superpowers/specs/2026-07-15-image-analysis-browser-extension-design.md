@@ -2,7 +2,7 @@
 
 日期：2026-07-15
 
-工作名称：Hhh Prompt Studio Next
+工作名称：Hhh Prompt Studio
 
 ## 1. 背景
 

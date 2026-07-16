@@ -14,6 +14,8 @@ export interface HistoryRecord {
   exportedAt?: number;
 }
 
+// Keep the original database identifier so existing users do not lose history
+// when the public product name changes.
 export const historyDb = new Dexie("hhh-prompt-studio-next") as Dexie & {
   history: EntityTable<HistoryRecord, "id">;
 };

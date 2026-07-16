@@ -3,7 +3,7 @@ import { defineConfig } from "wxt";
 export default defineConfig({
   modules: ["@wxt-dev/module-react"],
   manifest: {
-    name: "Hhh Prompt Studio Next",
+    name: "Hhh Prompt Studio",
     description: "分析网页图片和截图，并生成可复用的视觉提示词。",
     permissions: ["contextMenus", "storage", "activeTab", "scripting", "downloads"],
     host_permissions: process.env.E2E === "1" ? ["<all_urls>"] : [],
@@ -15,7 +15,7 @@ export default defineConfig({
       128: "icon/128.png"
     },
     action: {
-      default_title: "打开 Hhh Prompt Studio Next",
+      default_title: "打开 Hhh Prompt Studio",
       default_icon: {
         16: "icon/16.png",
         32: "icon/32.png"
