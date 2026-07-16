@@ -1,1 +1,1 @@
-export const APP_NAME = "Hhh Prompt Studio Next";
+export const APP_NAME = "Hhh Prompt Studio";

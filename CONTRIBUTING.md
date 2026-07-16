@@ -1,6 +1,6 @@
 # 贡献指南
 
-感谢你改进 Hhh Prompt Studio Next。小型修复可以直接提交 Pull Request；较大的功能、权限变化、存储迁移或产品方向调整，建议先创建 Issue 讨论。
+感谢你改进 Hhh Prompt Studio。小型修复可以直接提交 Pull Request；较大的功能、权限变化、存储迁移或产品方向调整，建议先创建 Issue 讨论。
 
 ## 开发环境
 

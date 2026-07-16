@@ -1,4 +1,4 @@
-# Hhh Prompt Studio Next
+# Hhh Prompt Studio
 
 A Chrome Manifest V3 extension that analyzes webpage images and visible-tab screenshots with your own OpenAI Chat Completions-compatible vision endpoint. Results appear in a movable in-page workbench.
 

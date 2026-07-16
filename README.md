@@ -1,4 +1,4 @@
-# Hhh Prompt Studio Next
+# Hhh Prompt Studio
 
 在任意网页上选择图片或截取当前页面，通过你自己的视觉模型接口进行分析，并在可拖动的悬浮工作台中获得可复用结果。
 
@@ -8,7 +8,7 @@
 
 ## 它能做什么
 
-Hhh Prompt Studio Next 是一个 Chrome Manifest V3 浏览器扩展。它把网页图片、链接缩略图或当前标签页截图交给 OpenAI Chat Completions 兼容的视觉模型分析，不绑定单一模型服务商。
+Hhh Prompt Studio 是一个 Chrome Manifest V3 浏览器扩展。它把网页图片、链接缩略图或当前标签页截图交给 OpenAI Chat Completions 兼容的视觉模型分析，不绑定单一模型服务商。
 
 - 在图片右键菜单中直接打开分析悬浮窗。
 - 点击扩展图标，从当前网页手动选择图片。

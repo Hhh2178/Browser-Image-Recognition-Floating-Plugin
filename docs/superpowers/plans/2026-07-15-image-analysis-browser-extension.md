@@ -51,7 +51,7 @@ import { APP_NAME } from "./app-meta";
 
 describe("app metadata", () => {
   it("exposes the product name", () => {
-    expect(APP_NAME).toBe("Hhh Prompt Studio Next");
+    expect(APP_NAME).toBe("Hhh Prompt Studio");
   });
 });
 ```
@@ -60,7 +60,7 @@ describe("app metadata", () => {
 
 ```json
 {
-  "name": "hhh-prompt-studio-next",
+  "name": "hhh-prompt-studio",
   "private": true,
   "version": "0.1.0",
   "type": "module",
@@ -110,7 +110,7 @@ import { defineConfig } from "wxt";
 export default defineConfig({
   modules: ["@wxt-dev/module-react"],
   manifest: {
-    name: "Hhh Prompt Studio Next",
+    name: "Hhh Prompt Studio",
     description: "Analyze web images and screenshots with configurable vision models.",
     permissions: ["contextMenus", "storage", "activeTab", "scripting", "commands"],
     optional_host_permissions: ["http://*/*", "https://*/*"],
@@ -189,7 +189,7 @@ Expected: FAIL because `src/app-meta.ts` does not exist.
 
 ```ts
 // src/app-meta.ts
-export const APP_NAME = "Hhh Prompt Studio Next";
+export const APP_NAME = "Hhh Prompt Studio";
 ```
 
 ```ts
@@ -212,7 +212,7 @@ import { createRoot } from "react-dom/client";
 import "./style.css";
 
 function App() {
-  return <main className="workbench">Hhh Prompt Studio Next</main>;
+  return <main className="workbench">Hhh Prompt Studio</main>;
 }
 
 export default defineContentScript({
@@ -1618,7 +1618,7 @@ Expected: prints `Manifest permission assertion passed`.
 
 ```markdown
 <!-- README.md -->
-# Hhh Prompt Studio Next
+# Hhh Prompt Studio
 
 ## Quick Start
 1. Run `npm install`.
