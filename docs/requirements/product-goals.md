@@ -17,6 +17,7 @@
 - 不做医疗、法律、金融等高风险专业结论（见 `docs/USE_CASES.md`）。
 - 不做人脸身份确认、年龄或敏感属性推断。
 - 不做视频逐帧分析、大规模无人值守批处理。
+- 不做截取浏览器外屏幕内容的独立截图伴侣（已评估并放弃，见 `docs/decisions/0003-abandon-screenshot-companion.md`）。
 - 不做离线处理；模型请求必然发送到用户配置的第三方服务商。
 - 不做云同步、账号系统；团队配置导出由用户自行传递。
 - 不承诺 Chrome Web Store 自动安装与全量覆盖式自动更新（需单独审批，见 `docs/decisions/0002-no-auto-overwrite-updates.md`）。

@@ -47,6 +47,6 @@
 
 ## Next
 
-1. **需求 3 预设固化已实施**（2026-09-23 第三轮）：`DEFAULT_SETTINGS` 固化 ModelScope 3 模型（激活、Key 留空）+ OpenAI 停用；「电商海报类反推」固化为第 6 个内置模板。**需求 2（五模板重构）与需求 1（截图伴侣）仍归档**：`docs/superpowers/plans/2026-09-23-companion-screenshot-prompts-presets.md` 按阶段 0→6 恢复。
+1. **三需求已全部落地或处置**（2026-09-23 第三、四轮）：需求 3 预设固化 ✅（ModelScope 3 模型激活 + 电商模板内置）；需求 2 五模板六段式重构 ✅（sections.ts 脚手架，3690–5005 字符/套）；**需求 1 已放弃**（`docs/decisions/0003-abandon-screenshot-companion.md`）。归档计划仅作执行记录。
 2. 首次提交与推送已完成（hash 见 `docs/logbooks/daily/2026-09-23.md` 第二轮记录）；此后一切改动在 git 历史之上进行。
 3. 待手动在 Chrome 加载 `.output/chrome-mv3` 完成真实识图冒烟（由用户执行）。

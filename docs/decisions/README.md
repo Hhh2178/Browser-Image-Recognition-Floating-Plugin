@@ -11,6 +11,7 @@
 | --- | --- |
 | [0001 轻量文档日志模式](0001-lightweight-doc-log-harness-mode.md) | 已采纳 |
 | [0002 不做全自动覆盖式更新](0002-no-auto-overwrite-updates.md) | 已采纳 |
+| [0003 放弃独立截图伴侣与屏幕外截图](0003-abandon-screenshot-companion.md) | 已采纳 |
 
 ## 模板
 
