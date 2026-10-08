@@ -4,7 +4,7 @@ A Chrome Manifest V3 extension that analyzes webpage images and visible-tab scre
 
 [简体中文](README.md) · [Installation](docs/INSTALL.md) · [User guide](docs/USAGE.md) · [Use cases](docs/USE_CASES.md) · [Troubleshooting](docs/TROUBLESHOOTING.md)
 
-> Current version: `0.2.0` (public beta). Installation is currently available through Chrome's “Load unpacked” flow; the extension is not yet published in the Chrome Web Store.
+> Current version: `0.3.0` (public beta). Installation is currently available through Chrome's “Load unpacked” flow; the extension is not yet published in the Chrome Web Store.
 
 ## Highlights
 

@@ -4,7 +4,7 @@
 
 [English](README.en.md) · [安装指南](docs/INSTALL.md) · [使用手册](docs/USAGE.md) · [应用场景](docs/USE_CASES.md) · [故障排查](docs/TROUBLESHOOTING.md)
 
-> 当前版本：`0.2.0`（公开测试阶段）。目前通过“加载已解压的扩展程序”安装，尚未发布到 Chrome 网上应用店。
+> 当前版本：`0.3.0`（公开测试阶段）。目前通过“加载已解压的扩展程序”安装，尚未发布到 Chrome 网上应用店。
 
 ## 它能做什么
 
