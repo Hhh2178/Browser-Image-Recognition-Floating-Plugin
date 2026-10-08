@@ -14,7 +14,7 @@
 | 版本 | `0.2.0`（公开测试，unpacked 安装） |
 | 依赖 | `npm install` 已完成（561 包） |
 | WXT 类型 | `.wxt/` 已生成；`package.json` 新增 `prepare` 脚本，后续安装自动生成 |
-| 生产构建 | `.output/chrome-mv3` 构建成功，总量约 850 kB |
+| 生产构建 | `.output/chrome-mv3` 构建成功，总量约 885 kB（含内置电商模板） |
 
 ## 当前阶段
 
@@ -47,6 +47,6 @@
 
 ## Next
 
-1. **三需求迭代计划已归档·暂缓**：`docs/superpowers/plans/2026-09-23-companion-screenshot-prompts-presets.md`（路线 B 独立软件+WebSocket 已选型；模型预设与提示词模板的**源码改动未实施**）；恢复时按计划阶段 0→6 执行。
+1. **需求 3 预设固化已实施**（2026-09-23 第三轮）：`DEFAULT_SETTINGS` 固化 ModelScope 3 模型（激活、Key 留空）+ OpenAI 停用；「电商海报类反推」固化为第 6 个内置模板。**需求 2（五模板重构）与需求 1（截图伴侣）仍归档**：`docs/superpowers/plans/2026-09-23-companion-screenshot-prompts-presets.md` 按阶段 0→6 恢复。
 2. 首次提交与推送已完成（hash 见 `docs/logbooks/daily/2026-09-23.md` 第二轮记录）；此后一切改动在 git 历史之上进行。
 3. 待手动在 Chrome 加载 `.output/chrome-mv3` 完成真实识图冒烟（由用户执行）。

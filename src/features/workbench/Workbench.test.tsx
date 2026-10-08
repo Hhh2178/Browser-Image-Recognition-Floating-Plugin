@@ -253,10 +253,12 @@ it("configures an optional daily model limit in inline settings", async () => {
 
   fireEvent.click(screen.getByRole("button", { name: "打开设置" }));
   expect(await screen.findByText("模型库")).toBeVisible();
-  fireEvent.click(screen.getByRole("checkbox", { name: "每日使用上限" }));
-  expect(screen.getByRole("spinbutton")).toHaveValue(100);
-  fireEvent.change(screen.getByRole("spinbutton"), { target: { value: "25" } });
-  expect(screen.getByRole("spinbutton")).toHaveValue(25);
+  const limitToggles = screen.getAllByRole("checkbox", { name: "每日使用上限" });
+  expect(limitToggles).toHaveLength(3);
+  const limitInputs = screen.getAllByRole("spinbutton");
+  expect(limitInputs[0]).toHaveValue(50);
+  fireEvent.change(limitInputs[0]!, { target: { value: "25" } });
+  expect(limitInputs[0]).toHaveValue(25);
 });
 
 it("saves valid provider settings even when endpoint permission is denied", async () => {

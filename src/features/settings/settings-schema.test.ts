@@ -37,4 +37,26 @@ describe("settings schema", () => {
 
     expect(exported.providers[0]).not.toHaveProperty("apiKey");
   });
+
+  it("ships migrated presets as safe defaults", () => {
+    expect(settingsSchema.safeParse(DEFAULT_SETTINGS).success).toBe(true);
+    expect(DEFAULT_SETTINGS.providers.every((provider) => provider.apiKey === "")).toBe(true);
+
+    expect(DEFAULT_SETTINGS.activeProviderId).toBe("provider-modelscope");
+    const active = DEFAULT_SETTINGS.providers.find((provider) => provider.id === "provider-modelscope");
+    expect(active?.enabled).toBe(true);
+    expect(active?.models.map((model) => model.model)).toEqual([
+      "Qwen/Qwen3.8-Flash-Next",
+      "deepseek-ai/DeepSeek-V4.1-Flash",
+      "Qwen/Qwen3.8-27B"
+    ]);
+    expect(active?.models.every((model) => model.dailyLimit === 50)).toBe(true);
+
+    expect(DEFAULT_SETTINGS.providers.find((provider) => provider.id === "provider-openai")?.enabled)
+      .toBe(false);
+    const qwen27b = DEFAULT_SETTINGS.providers
+      .flatMap((provider) => provider.models)
+      .filter((model) => model.model === "Qwen/Qwen3.8-27B");
+    expect(qwen27b).toHaveLength(1);
+  });
 });

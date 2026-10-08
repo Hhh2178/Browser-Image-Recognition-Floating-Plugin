@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
+import { BUILTIN_PROMPTS } from "./builtins";
 import { importPromptBundle } from "./prompt-import";
-import { renderPrompt } from "./prompt-schema";
+import { promptSchema, renderPrompt } from "./prompt-schema";
 
 describe("prompt library", () => {
   it("renders supported variables", () => {
@@ -31,5 +32,20 @@ describe("prompt library", () => {
       source: "custom"
     });
     expect(result.errors).toEqual([]);
+  });
+
+  it("ships the e-commerce poster template as a builtin", () => {
+    const preset = BUILTIN_PROMPTS.find((item) => item.id === "builtin:ecommerce-poster-reverse");
+    expect(preset).toBeDefined();
+    expect(promptSchema.safeParse(preset).success).toBe(true);
+    expect(preset?.name).toBe("电商海报类反推");
+    expect((preset?.content.length ?? 0)).toBeGreaterThan(5000);
+
+    const rendered = renderPrompt(preset!.content, {
+      outputFormat: "json",
+      sourceType: "image",
+      pageTitle: "测试页"
+    });
+    expect(rendered).not.toContain("{{");
   });
 });

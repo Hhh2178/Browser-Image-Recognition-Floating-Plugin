@@ -63,13 +63,45 @@ export const DEFAULT_SETTINGS: Settings = {
   schemaVersion: 2,
   providers: [
     {
+      id: "provider-modelscope",
+      name: "ModelScope 魔搭",
+      apiUrl: "https://api-inference.modelscope.cn/v1",
+      apiKey: "",
+      endpointMode: "base_url",
+      imageTransport: "auto",
+      enabled: true,
+      models: [
+        {
+          id: "model-modelscope-qwen-vl",
+          name: "Qwen/Qwen3.8-Flash-Next",
+          model: "Qwen/Qwen3.8-Flash-Next",
+          enabled: true,
+          dailyLimit: 50
+        },
+        {
+          id: "model-0025d3ee-6b03-46aa-9b1c-19ebaaaa7925",
+          name: "deepseek-ai/DeepSeek-V4.1-Flash",
+          model: "deepseek-ai/DeepSeek-V4.1-Flash",
+          enabled: true,
+          dailyLimit: 50
+        },
+        {
+          id: "model-e295ad0c-5f09-4d9c-bbff-ee6c71e702fd",
+          name: "Qwen/Qwen3.8-27B",
+          model: "Qwen/Qwen3.8-27B",
+          enabled: true,
+          dailyLimit: 50
+        }
+      ]
+    },
+    {
       id: "provider-openai",
       name: "OpenAI",
       apiUrl: "https://api.openai.com/v1",
       apiKey: "",
       endpointMode: "base_url",
       imageTransport: "auto",
-      enabled: true,
+      enabled: false,
       models: [{
         id: "model-gpt-4o",
         name: "GPT-4o",
@@ -77,26 +109,10 @@ export const DEFAULT_SETTINGS: Settings = {
         enabled: true,
         dailyLimit: null
       }]
-    },
-    {
-      id: "provider-modelscope",
-      name: "ModelScope 魔搭",
-      apiUrl: "https://api-inference.modelscope.cn/v1",
-      apiKey: "",
-      endpointMode: "base_url",
-      imageTransport: "auto",
-      enabled: false,
-      models: [{
-        id: "model-modelscope-qwen-vl",
-        name: "Qwen VL",
-        model: "Qwen/Qwen2.5-VL-72B-Instruct",
-        enabled: true,
-        dailyLimit: null
-      }]
     }
   ],
-  activeProviderId: "provider-openai",
-  activeModelId: "model-gpt-4o",
+  activeProviderId: "provider-modelscope",
+  activeModelId: "model-modelscope-qwen-vl",
   hoverEnabled: false,
   theme: "system"
 };

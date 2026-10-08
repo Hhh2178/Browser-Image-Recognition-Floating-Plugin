@@ -1,4 +1,5 @@
 import type { PromptPreset } from "./prompt-schema";
+import { ECOMMERCE_POSTER_PROMPT } from "./builtin-ecommerce";
 import { LEGACY_BUILTIN_PROMPTS } from "./legacy-builtins";
 
 export const BUILTIN_PROMPTS: PromptPreset[] = [
@@ -36,5 +37,6 @@ export const BUILTIN_PROMPTS: PromptPreset[] = [
     createdAt: 0,
     updatedAt: 0
   },
+  ECOMMERCE_POSTER_PROMPT,
   ...LEGACY_BUILTIN_PROMPTS
 ];
