@@ -20,7 +20,7 @@ The harness is local and deterministic. It does not call external services and d
 
 | Interface | Direction | Contract | Verification |
 | --- | --- | --- | --- |
-| `npm run harness:verify:project` | developer to repo | Checks required governance docs, scripts, and log folders | `scripts/verify-harness-contract.mjs` |
+| `npm run harness:verify:project` | developer to repo | Checks required root/governance docs, requirements, current-state, decisions, scripts, and log folders | `scripts/verify-harness-contract.mjs` |
 | `npm run harness:verify:release` | developer to repo | Checks version, release policy, and release log structure | `scripts/verify-harness-contract.mjs --release` |
 
 ## Failure Modes

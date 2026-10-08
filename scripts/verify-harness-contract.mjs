@@ -8,6 +8,11 @@ const requiredProjectPaths = [
   "AGENTS.md",
   "README.md",
   "docs/INDEX.md",
+  "docs/current-state.md",
+  "docs/requirements/product-goals.md",
+  "docs/requirements/scope.md",
+  "docs/requirements/acceptance-criteria.md",
+  "docs/decisions/README.md",
   "docs/governance/README.md",
   "docs/governance/root-entry-responsibility-matrix.md",
   "docs/governance/engineering-guardrails.md",
@@ -61,7 +66,11 @@ for (const relativePath of requiredProjectPaths) {
 assertScript("harness:verify:project");
 assertScript("harness:verify:release");
 assertIncludes("AGENTS.md", "First Reading Order");
+assertIncludes("AGENTS.md", "docs/current-state.md");
 assertIncludes("docs/INDEX.md", "Source Of Truth");
+assertIncludes("docs/INDEX.md", "docs/requirements/");
+assertIncludes("docs/current-state.md", "## Next");
+assertIncludes("docs/requirements/acceptance-criteria.md", "harness:verify:project");
 assertIncludes("docs/systems/harness/README.md", "harness:verify:project");
 assertIncludes(
   "docs/systems/workbench/frontend-design/design-tokens.md",

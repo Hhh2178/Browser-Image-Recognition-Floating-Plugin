@@ -32,8 +32,9 @@ For a new task, read:
 1. `AGENTS.md`
 2. `README.md`
 3. This index
-4. Latest daily log in `docs/logbooks/daily/`
-5. Relevant system document under `docs/systems/`
+4. `docs/current-state.md`
+5. Latest daily log in `docs/logbooks/daily/`
+6. Relevant system document under `docs/systems/`
 
 ## Source Of Truth
 
@@ -45,6 +46,11 @@ For a new task, read:
 | Troubleshooting and privacy | `docs/TROUBLESHOOTING.md`, `PRIVACY.md` |
 | Runtime architecture | `docs/ARCHITECTURE.md`, `docs/systems/extension/README.md` |
 | Migration from legacy extension | `docs/MIGRATION.md` |
+| Long-term goals and non-goals | `docs/requirements/product-goals.md` |
+| Phase scope and constraints | `docs/requirements/scope.md` |
+| Acceptance conditions | `docs/requirements/acceptance-criteria.md` |
+| Current phase, risks, next step | `docs/current-state.md` |
+| Durable choices and their why | `docs/decisions/` |
 | Specs and implementation plans | `docs/superpowers/specs/`, `docs/superpowers/plans/` |
 | Governance and release rules | `docs/governance/` |
 | Harness verification | `docs/systems/harness/README.md` |
@@ -52,6 +58,8 @@ For a new task, read:
 
 ## Document Families
 
+- `docs/requirements/`: product goals, phase scope, and acceptance criteria.
+- `docs/decisions/`: durable engineering and product choices with status.
 - `docs/governance/`: durable rules for releases, worktree safety, documentation, and engineering guardrails.
 - `docs/systems/`: runtime systems, interfaces, permissions, data flow, and verification.
 - `docs/logbooks/`: append-only evidence for daily work, releases, validations, and incidents.
@@ -60,6 +68,8 @@ For a new task, read:
 ## Update Rules
 
 - Update this index when adding, moving, or retiring a documentation family.
+- Keep `docs/current-state.md` aligned with reality at every meaningful task end.
+- Record durable choices in `docs/decisions/` (never only in a daily log).
 - Update system docs when message contracts, storage, permissions, provider behavior, or UI shell behavior changes.
 - Update release logs for every version tag.
 - Update daily logs for meaningful implementation, debugging, migration, or governance work.

@@ -54,5 +54,7 @@ npm run harness:verify:project
 - 用户安装方式变化：更新 `README.md` 和 `docs/INSTALL.md`。
 - 模型、权限或传输行为变化：更新 `docs/CONFIGURATION.md` 与 `PRIVACY.md`。
 - 架构或消息边界变化：更新 `docs/ARCHITECTURE.md` 和相关系统文档。
-- 有意义的工作：在 `docs/logbooks/daily/` 添加或更新当天记录。
+- 产品目标、阶段范围或验收条件变化：更新 `docs/requirements/` 对应文件。
+- 持久性工程选择：写入 `docs/decisions/`，不要只记在日志里。
+- 有意义的工作：在 `docs/logbooks/daily/` 添加或更新当天记录；任务结束时同步 `docs/current-state.md`。
 

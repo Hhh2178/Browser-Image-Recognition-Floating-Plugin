@@ -5,6 +5,7 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
+    "prepare": "wxt prepare",
     "dev": "wxt",
     "build": "wxt build",
     "build:e2e": "cross-env E2E=1 wxt build",

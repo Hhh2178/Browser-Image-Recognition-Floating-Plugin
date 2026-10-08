@@ -2,17 +2,18 @@
 
 ## Project Root
 
-- Active root: `D:\codex\浏览器图片分析插件`
-- Reference-only legacy extension: `C:\Users\Administrator\AppData\Local\CodexExtensions\codex-promo`
-- Do not edit the legacy extension unless the user explicitly asks for a migration or comparison task.
+- Active root: this repository; all paths in this document are repository-relative unless stated otherwise.
+- Upstream: `https://github.com/Hhh2178/Browser-Image-Recognition-Floating-Plugin` (`main`)
+- The legacy extension referenced by `docs/MIGRATION.md` is reference-only; do not edit it unless the user explicitly asks for a migration or comparison task.
 
 ## First Reading Order
 
 1. `AGENTS.md`
 2. `README.md`
 3. `docs/INDEX.md`
-4. Latest file in `docs/logbooks/daily/`
-5. Relevant system doc under `docs/systems/`
+4. `docs/current-state.md`
+5. Latest file in `docs/logbooks/daily/`
+6. Relevant system doc under `docs/systems/`
 
 ## Authority Model
 
@@ -20,6 +21,11 @@
 | --- | --- | --- |
 | Product purpose and local commands | `README.md` | Setup, scripts, or install path changes |
 | Documentation map | `docs/INDEX.md` | Any doc family is added, moved, or retired |
+| Long-term goals and non-goals | `docs/requirements/product-goals.md` | Product direction changes |
+| Phase scope and constraints | `docs/requirements/scope.md` | Phase boundary changes |
+| Acceptance conditions | `docs/requirements/acceptance-criteria.md` | Verification gates change |
+| Current phase, risks, next step | `docs/current-state.md` | Every meaningful task end |
+| Durable choices and their why | `docs/decisions/` | A decision is made, reversed, or superseded |
 | Release/version policy | `docs/governance/release-version-policy.md` | Versioning, tag, or GitHub release flow changes |
 | Extension architecture | `docs/ARCHITECTURE.md` and `docs/systems/extension/README.md` | Runtime boundaries, permissions, storage, or message contracts change |
 | Harness rules and checks | `docs/systems/harness/README.md` | Verification scripts or package harness commands change |

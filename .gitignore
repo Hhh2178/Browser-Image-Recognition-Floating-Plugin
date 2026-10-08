@@ -1,5 +1,6 @@
 .superpowers/
 .codegraph/
+.zcode/
 .wxt/
 node_modules/
 .output/
