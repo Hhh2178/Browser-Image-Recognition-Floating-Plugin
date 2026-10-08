@@ -36,7 +36,7 @@
 - Windows 10（win32 10.0.19044 x64），Node + npm 可用。
 - git 由 Git for Windows 提供（v2.55.0，Git Bash 内可用；**未加入 Windows cmd 的 PATH**，cmd 下 `where git` 找不到属预期）。提交身份 `Hhh2178`，凭据管理器 `manager`。
 - esbuild / spawn-sync 的 postinstall 被 npm allow-scripts 策略跳过；本次构建未受影响，若后续构建异常，先运行 `npm approve-scripts`。
-- 访问 github.com：直连易超时；本仓库已配置本地 `http.proxy=http://127.0.0.1:7890`（FlClash），后续 fetch/push 需代理运行中。
+- 访问 github.com：直连与本机 FlClash 代理（`127.0.0.1:7890`）**交替可用且都会抖动**（2026-10-08 实测：代理监听但上游失灵时直连可用，反之亦然）。仓库级 `http.proxy` 已移除（用直连）；push 报 schannel/Empty reply 时先 `curl -sI https://github.com` 与 `curl -x http://127.0.0.1:7890 ...` 双向探测，再用 `git -c http.proxy=http://127.0.0.1:7890 push` 临时走代理或稍后重试。
 
 ## 风险
 
